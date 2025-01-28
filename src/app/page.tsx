@@ -14,6 +14,14 @@ import { getDevelopers } from '@/services/api'
 
 const ITEMS_PER_PAGE = 8
 
+const DEVELOPER_TYPES = [
+  'Full-stack developer in',
+  'Frontend developer in',
+  'Backend developer in',
+  'Mobile developer in',
+  'Data scientist in'
+]
+
 export default function Home() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -31,6 +39,8 @@ function HomeContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+  const [searchType, setSearchType] = useState('Full-stack developer in')
+  const [searchLocation, setSearchLocation] = useState('United States')
   
   // Get page from URL or default to 1
   const currentPage = Number(searchParams.get('page')) || 1
@@ -44,11 +54,22 @@ function HomeContent() {
   const [filters, setFilters] = useState<FilterType>(initialFilters)
   const [selectedDev, setSelectedDev] = useState<Developer | null>(null)
 
+  // Handle search
+  const handleSearch = () => {
+    const type = searchType.replace(' in', '')
+    const params = new URLSearchParams()
+    params.set('type', type)
+    params.set('location', searchLocation)
+    router.push(`/?${params.toString()}`)
+    setFilters({ ...filters, type })
+  }
+
   // Update URL when filters change
   const updateFilters = (newFilters: FilterType) => {
     const params = new URLSearchParams()
     if (newFilters.type) params.set('type', newFilters.type)
     if (newFilters.skills.length) params.set('skills', newFilters.skills.join(','))
+    if (searchLocation) params.set('location', searchLocation)
     
     // Preserve current page if it exists
     const page = searchParams.get('page')
@@ -62,7 +83,7 @@ function HomeContent() {
     const fetchDevelopers = async () => {
       try {
         setLoading(true)
-        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE, filters)
+        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE, filters, searchLocation)
         setDevelopers(data)
         setTotalDevelopers(total)
         setError('')
@@ -75,7 +96,7 @@ function HomeContent() {
     }
 
     fetchDevelopers()
-  }, [currentPage, filters])
+  }, [currentPage, filters, searchLocation])
 
   // Handle page change
   const handlePageChange = (page: number) => {
@@ -84,9 +105,11 @@ function HomeContent() {
     // Preserve existing filters
     const type = searchParams.get('type')
     const skills = searchParams.get('skills')
+    const location = searchParams.get('location')
     
     if (type) params.set('type', type)
     if (skills) params.set('skills', skills)
+    if (location) params.set('location', location)
     
     // Set new page
     params.set('page', page.toString())
@@ -124,17 +147,29 @@ function HomeContent() {
             <Row className="align-items-center">
               <Col>
                 <Form className="d-flex flex-column flex-md-row gap-2">
-                  <Form.Select className="w-auto">
-                    <option>Full-stack developer in</option>
-                    <option>Frontend developer in</option>
-                    <option>Backend developer in</option>
+                  <Form.Select 
+                    className="w-auto"
+                    value={searchType}
+                    onChange={(e) => setSearchType(e.target.value)}
+                  >
+                    {DEVELOPER_TYPES.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
                   </Form.Select>
                   <Form.Control
                     type="text"
-                    placeholder="United States"
+                    placeholder="Enter country name"
                     className="w-auto"
+                    value={searchLocation}
+                    onChange={(e) => setSearchLocation(e.target.value)}
                   />
-                  <Button variant="primary" className="px-4">Search</Button>
+                  <Button 
+                    variant="primary" 
+                    className="px-4"
+                    onClick={handleSearch}
+                  >
+                    Search
+                  </Button>
                 </Form>
               </Col>
             </Row>

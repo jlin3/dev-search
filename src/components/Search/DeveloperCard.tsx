@@ -3,7 +3,7 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Card } from 'react-bootstrap'
+import { Card, Badge } from 'react-bootstrap'
 import type { Developer } from '@/types'
 
 interface DeveloperCardProps {
@@ -11,9 +11,9 @@ interface DeveloperCardProps {
   onSelect: (dev: Developer) => void;
 }
 
-export default function DeveloperCard({ dev, onSelect }: DeveloperCardProps) {
+export default function DeveloperCard({ dev }: DeveloperCardProps) {
   return (
-    <Card className="border-0 shadow-sm">
+    <Card className="border shadow-sm mb-3">
       <Card.Body>
         <div className="d-flex">
           <div className="me-3">
@@ -26,31 +26,42 @@ export default function DeveloperCard({ dev, onSelect }: DeveloperCardProps) {
             />
           </div>
           <div className="flex-grow-1">
-            <div className="d-flex justify-content-between align-items-start">
+            <div className="d-flex justify-content-between align-items-start mb-2">
               <div>
-                <Link 
-                  href={`/profile/${dev.login.uuid}`}
-                  className="text-decoration-none"
-                >
-                  <h5 className="mb-1 text-primary">
-                    {dev.name.first} {dev.name.last}
-                  </h5>
-                </Link>
-                <p className="text-muted small mb-2">iOS expert</p>
+                <h5 className="mb-1">
+                  {dev.name.first} {dev.name.last}
+                </h5>
+                <div className="d-flex align-items-center gap-2 mb-2">
+                  <span className="text-muted small">iOS expert</span>
+                  <Badge bg="secondary" className="text-white">
+                    {dev.type}
+                  </Badge>
+                </div>
+                <div className="mb-2">
+                  {dev.skills.slice(0, 3).map(skill => (
+                    <Badge 
+                      key={skill} 
+                      bg="primary" 
+                      className="me-1"
+                    >
+                      {skill}
+                    </Badge>
+                  ))}
+                </div>
               </div>
+              <Link 
+                href={`/profile/${dev.login.uuid}`}
+                className="text-primary text-decoration-none"
+              >
+                View profile
+              </Link>
             </div>
-            <p className="mb-3">
-              {dev.name.first} has over 15 years of experience as a full-stack developer, 
+            <p className="mb-0 text-secondary">
+              {dev.name.first} has over 15 years of experience as a {dev.type.toLowerCase()} developer, 
               including creating a #1 iOS game in 2008 and scaling Yahoo! ad servers. 
               {dev.name.first}'s strengths are adaptability, clear communication, and a 
               relentless focus on the details that get projects shipped.
             </p>
-            <Link 
-              href={`/profile/${dev.login.uuid}`}
-              className="text-primary text-decoration-none"
-            >
-              View profile
-            </Link>
           </div>
         </div>
       </Card.Body>

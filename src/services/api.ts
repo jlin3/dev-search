@@ -16,7 +16,8 @@ const api = axios.create({
 export const getDevelopers = async (
   page: number = 1, 
   limit: number = 8,
-  filters?: Filters
+  filters?: Filters,
+  location?: string
 ): Promise<{
   developers: Developer[];
   total: number;
@@ -35,6 +36,13 @@ export const getDevelopers = async (
           filters.skills.every(skill => dev.skills.includes(skill))
         );
       }
+    }
+
+    // Apply location filter
+    if (location) {
+      developers = developers.filter(dev => 
+        dev.location.country.toLowerCase() === location.toLowerCase()
+      );
     }
 
     return {
@@ -58,21 +66,39 @@ export const getDeveloperById = async (id: string): Promise<Developer> => {
   }
 };
 
-const enhanceDevelopers = (developers: any[]): Developer[] => {
-  return developers.map(dev => ({
-    ...dev,
-    skills: getRandomSkills(),
-    type: getRandomType(),
-    rate: Math.floor(Math.random() * 100) + 50
-  }));
-};
-
-// Helper functions
-const getRandomSkills = () => {
-  const skills = ['React', 'Node.js', 'Python', 'JavaScript', 'Java'];
-  return skills.sort(() => 0.5 - Math.random()).slice(0, 3);
-};
-
 const getRandomType = () => {
-  return ['Full Stack', 'Frontend', 'Backend'][Math.floor(Math.random() * 3)];
+  const types = [
+    'Full-stack',
+    'Frontend',
+    'Backend',
+    'Mobile',
+    'Data Scientist'
+  ];
+  return types[Math.floor(Math.random() * types.length)];
+};
+
+const getRandomSkills = (type: string): string[] => {
+  const skillsByType: { [key: string]: string[] } = {
+    'Full-stack': ['React', 'Node.js', 'Python', 'JavaScript', 'TypeScript', 'MongoDB'],
+    'Frontend': ['React', 'Vue', 'Angular', 'JavaScript', 'CSS', 'HTML'],
+    'Backend': ['Node.js', 'Python', 'Java', 'Go', 'PostgreSQL', 'Redis'],
+    'Mobile': ['iOS', 'Android', 'React Native', 'Swift', 'Kotlin', 'Flutter'],
+    'Data Scientist': ['Python', 'R', 'TensorFlow', 'PyTorch', 'SQL', 'Pandas']
+  };
+
+  const availableSkills = skillsByType[type] || skillsByType['Full-stack'];
+  const shuffled = [...availableSkills].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 3);
+};
+
+const enhanceDevelopers = (developers: any[]): Developer[] => {
+  return developers.map(dev => {
+    const type = getRandomType();
+    return {
+      ...dev,
+      skills: getRandomSkills(type),
+      type,
+      rate: Math.floor(Math.random() * 100) + 50
+    };
+  });
 }; 
