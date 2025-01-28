@@ -130,25 +130,27 @@ function HomeContent() {
   return (
     <RootLayout>
       <Container fluid className="px-0">
-        {/* Navigation Bar */}
+        {/* Single Navigation Bar */}
         <nav className="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
           <Container>
-            <Link href="/" className="navbar-brand">Developer Search</Link>
+            <Link href="/" className="navbar-brand fs-4">Developer Search</Link>
             <div className="d-flex align-items-center gap-3">
               <Link 
                 href="/browse-developers" 
-                className="text-white text-decoration-none"
+                className="nav-link text-white"
               >
                 Browse Developers
               </Link>
               <Link 
                 href="/resources" 
-                className="text-white text-decoration-none"
+                className="nav-link text-white"
               >
                 Resources
               </Link>
-              <Button variant="outline-light" size="sm">Sign Up</Button>
-              <Button variant="light" size="sm">Login</Button>
+              <div className="ms-3">
+                <Button variant="outline-light" size="sm" className="me-2">Sign Up</Button>
+                <Button variant="light" size="sm">Login</Button>
+              </div>
             </div>
           </Container>
         </nav>

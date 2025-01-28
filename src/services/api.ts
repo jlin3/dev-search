@@ -23,9 +23,9 @@ export const getDevelopers = async (
   total: number;
 }> => {
   try {
-    // Request more results to ensure we have enough after filtering
-    const res = await api.get<RandomUserResponse>(`/?page=${page}&results=${limit * 3}&seed=devsearch${page}`);
-    let developers = enhanceDevelopers(res.data.results);
+    // Request significantly more results to ensure good distribution
+    const res = await api.get<RandomUserResponse>(`/?page=${page}&results=${limit * 15}&seed=devsearch${page}`);
+    let developers = enhanceDevelopers(res.data.results, `page${page}`);
 
     // Apply filters if they exist
     if (filters) {
@@ -39,10 +39,10 @@ export const getDevelopers = async (
       }
     }
 
-    // Apply location filter
+    // Apply location filter with case-insensitive matching
     if (location) {
       developers = developers.filter(dev => 
-        dev.location.country.toLowerCase() === location.toLowerCase()
+        dev.location.country.toLowerCase().includes(location.toLowerCase())
       );
     }
 
@@ -51,7 +51,7 @@ export const getDevelopers = async (
 
     return {
       developers,
-      total: developers.length * 5 // Simulate more pages of filtered results
+      total: Math.min(500, developers.length * 10) // Simulate more pages but cap at 500
     };
   } catch (error) {
     console.error('Failed to fetch developers:', error);
@@ -61,9 +61,12 @@ export const getDevelopers = async (
 
 export const getDeveloperById = async (id: string): Promise<Developer> => {
   try {
-    // Use the same seed for consistent data
+    // Use the ID as seed for consistent data
     const res = await api.get<RandomUserResponse>(`/?seed=${id}`);
-    const [dev] = enhanceDevelopers(res.data.results, id);
+    if (!res.data.results.length) {
+      throw new Error('Developer not found');
+    }
+    const [dev] = enhanceDevelopers([res.data.results[0]], id);
     return dev;
   } catch (error) {
     console.error('Failed to fetch developer:', error);
