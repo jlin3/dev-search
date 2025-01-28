@@ -1,9 +1,5 @@
 import axios from 'axios';
 import type { Developer, Filters } from '@/types';
-import { validateEnv } from '@/utils/env';
-
-// Validate environment variables on initialization
-validateEnv();
 
 interface RandomUserResponse {
   results: any[];
@@ -14,7 +10,7 @@ interface RandomUserResponse {
 }
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://randomuser.me/api',
+  baseURL: 'https://randomuser.me/api',
   timeout: 10000,
 });
 
@@ -102,9 +98,7 @@ const getRandomType = (seed?: string): string => {
   ];
   
   if (seed) {
-    // Use the seed to generate a consistent type for the same user
     const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    // Ensure more even distribution by using modulo bias correction
     const index = Math.floor((hash / types.length) % types.length);
     return types[index];
   }
@@ -124,7 +118,6 @@ const getRandomSkills = (type: string, seed?: string): string[] => {
   const availableSkills = skillsByType[type] || skillsByType['Full-stack'];
   
   if (seed) {
-    // Use the seed to generate consistent skills for the same user
     const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const shuffled = [...availableSkills].sort((a, b) => {
       const hashA = (hash + a.charCodeAt(0)) % availableSkills.length;

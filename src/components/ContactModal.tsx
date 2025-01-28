@@ -1,8 +1,7 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
 import { Modal, Form, Button } from 'react-bootstrap'
-import ReCAPTCHA from "react-google-recaptcha"
 import type { Developer } from '@/types'
 
 interface ContactModalProps {
@@ -18,18 +17,12 @@ export default function ContactModal({ dev, show, onClose }: ContactModalProps) 
     email: '',
     message: ''
   })
-  const [captchaValue, setCaptchaValue] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const recaptchaRef = useRef<ReCAPTCHA>(null)
   const [errors, setErrors] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!captchaValue) {
-      alert('Please complete the reCAPTCHA')
-      return
-    }
-
+    
     if (!formData.message.trim()) {
       setErrors('Please enter a message')
       return
@@ -40,7 +33,7 @@ export default function ContactModal({ dev, show, onClose }: ContactModalProps) 
     try {
       // Simulate API call with 3 second delay
       await new Promise(resolve => setTimeout(resolve, 3000))
-      console.log('Form submitted:', { ...formData, captchaValue })
+      console.log('Form submitted:', formData)
       onClose()
       // Reset form
       setFormData({
@@ -49,10 +42,6 @@ export default function ContactModal({ dev, show, onClose }: ContactModalProps) 
         email: '',
         message: ''
       })
-      setCaptchaValue(null)
-      if (recaptchaRef.current) {
-        recaptchaRef.current.reset()
-      }
     } catch (error) {
       console.error('Error submitting form:', error)
       alert('Failed to send message. Please try again.')
@@ -125,11 +114,10 @@ export default function ContactModal({ dev, show, onClose }: ContactModalProps) 
           </Form.Group>
 
           <div className="mb-3">
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
-              onChange={(value) => setCaptchaValue(value)}
-            />
+            {/* Placeholder for reCAPTCHA */}
+            <div className="border rounded p-3 text-center bg-light">
+              <p className="mb-0">reCAPTCHA placeholder</p>
+            </div>
           </div>
 
           <div className="d-flex justify-content-end gap-2">
@@ -143,7 +131,7 @@ export default function ContactModal({ dev, show, onClose }: ContactModalProps) 
             <Button 
               type="submit" 
               variant="primary"
-              disabled={!captchaValue || isSubmitting}
+              disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>
