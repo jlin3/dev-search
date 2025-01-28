@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Container, Row, Col, Form } from 'react-bootstrap'
 import { BeatLoader } from 'react-spinners'
@@ -16,6 +16,14 @@ import { getDevelopers } from '@/services/api'
 const ITEMS_PER_PAGE = 8
 
 export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
+  )
+}
+
+function HomeContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -71,8 +79,18 @@ export default function Home() {
 
   // Handle page change
   const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams)
+    const params = new URLSearchParams()
+    
+    // Preserve existing filters
+    const type = searchParams.get('type')
+    const skills = searchParams.get('skills')
+    
+    if (type) params.set('type', type)
+    if (skills) params.set('skills', skills)
+    
+    // Set new page
     params.set('page', page.toString())
+    
     router.push(`/?${params.toString()}`)
   }
 

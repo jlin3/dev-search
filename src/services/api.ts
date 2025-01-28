@@ -1,6 +1,14 @@
 import axios from 'axios';
 import type { Developer } from '@/types';
 
+interface RandomUserResponse {
+  results: any[];
+  info: {
+    results: number;
+    page: number;
+  };
+}
+
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://randomuser.me/api'
 });
@@ -10,7 +18,7 @@ export const getDevelopers = async (page: number = 1, limit: number = 8): Promis
   total: number;
 }> => {
   try {
-    const res = await api.get(`/?page=${page}&results=${limit}&seed=devsearch`);
+    const res = await api.get<RandomUserResponse>(`/?page=${page}&results=${limit}&seed=devsearch`);
     return {
       developers: enhanceDevelopers(res.data.results),
       total: res.data.info.results
@@ -23,7 +31,7 @@ export const getDevelopers = async (page: number = 1, limit: number = 8): Promis
 
 export const getDeveloperById = async (id: string): Promise<Developer> => {
   try {
-    const res = await api.get(`/?seed=${id}`);
+    const res = await api.get<RandomUserResponse>(`/?seed=${id}`);
     const [dev] = enhanceDevelopers(res.data.results);
     return dev;
   } catch (error) {
