@@ -24,7 +24,7 @@ export const getDevelopers = async (
 }> => {
   try {
     // Request significantly more results to ensure good distribution
-    const res = await api.get<RandomUserResponse>(`/?page=${page}&results=${limit * 15}&seed=devsearch${page}`);
+    const res = await api.get<RandomUserResponse>(`/?page=${page}&results=${limit * 30}&seed=devsearch${page}`);
     let developers = enhanceDevelopers(res.data.results, `page${page}`);
 
     // Apply filters if they exist
@@ -46,12 +46,22 @@ export const getDevelopers = async (
       );
     }
 
-    // Ensure we only return the requested number of results
+    // Ensure we have enough results after filtering
+    if (developers.length < limit) {
+      // If we don't have enough results, fetch more
+      const additionalRes = await api.get<RandomUserResponse>(
+        `/?page=${page + 1}&results=${limit * 30}&seed=devsearch${page + 1}`
+      );
+      const additionalDevs = enhanceDevelopers(additionalRes.data.results, `page${page + 1}`);
+      developers = [...developers, ...additionalDevs];
+    }
+
+    // Return only the requested number of results
     developers = developers.slice(0, limit);
 
     return {
       developers,
-      total: Math.min(500, developers.length * 10) // Simulate more pages but cap at 500
+      total: Math.min(1000, developers.length * 20) // Simulate more pages but cap at 1000
     };
   } catch (error) {
     console.error('Failed to fetch developers:', error);
@@ -86,7 +96,9 @@ const getRandomType = (seed?: string): string => {
   if (seed) {
     // Use the seed to generate a consistent type for the same user
     const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return types[hash % types.length];
+    // Ensure more even distribution by using modulo bias correction
+    const index = Math.floor((hash / types.length) % types.length);
+    return types[index];
   }
   
   return types[Math.floor(Math.random() * types.length)];

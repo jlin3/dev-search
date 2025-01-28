@@ -130,23 +130,13 @@ function HomeContent() {
   return (
     <RootLayout>
       <Container fluid className="px-0">
-        {/* Single Navigation Bar */}
+        {/* Main Navigation Bar */}
         <nav className="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
           <Container>
             <Link href="/" className="navbar-brand fs-4">Developer Search</Link>
             <div className="d-flex align-items-center gap-3">
-              <Link 
-                href="/browse-developers" 
-                className="nav-link text-white"
-              >
-                Browse Developers
-              </Link>
-              <Link 
-                href="/resources" 
-                className="nav-link text-white"
-              >
-                Resources
-              </Link>
+              <Link href="/browse-developers" className="nav-link text-white">Browse Developers</Link>
+              <Link href="/resources" className="nav-link text-white">Resources</Link>
               <div className="ms-3">
                 <Button variant="outline-light" size="sm" className="me-2">Sign Up</Button>
                 <Button variant="light" size="sm">Login</Button>
@@ -157,7 +147,7 @@ function HomeContent() {
 
         {/* Search Header */}
         <Container>
-          <div className="search-header mb-4">
+          <div className="search-header rounded p-4 mb-4">
             <Row className="align-items-center">
               <Col>
                 <Form className="d-flex flex-column flex-md-row gap-2">

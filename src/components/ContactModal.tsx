@@ -19,6 +19,7 @@ export default function ContactModal({ dev, show, onClose }: ContactModalProps) 
     message: ''
   })
   const [captchaValue, setCaptchaValue] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const recaptchaRef = useRef<ReCAPTCHA>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,9 +28,31 @@ export default function ContactModal({ dev, show, onClose }: ContactModalProps) 
       alert('Please complete the reCAPTCHA')
       return
     }
-    // Here you would typically send the form data to your backend
-    console.log('Form submitted:', { ...formData, captchaValue })
-    onClose()
+
+    setIsSubmitting(true)
+    
+    try {
+      // Simulate API call with 3 second delay
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      console.log('Form submitted:', { ...formData, captchaValue })
+      onClose()
+      // Reset form
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        message: ''
+      })
+      setCaptchaValue(null)
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset()
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      alert('Failed to send message. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -104,15 +127,24 @@ export default function ContactModal({ dev, show, onClose }: ContactModalProps) 
           </div>
 
           <div className="d-flex justify-content-end gap-2">
-            <Button variant="light" onClick={onClose}>
+            <Button 
+              variant="light" 
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
             <Button 
               type="submit" 
               variant="primary"
-              disabled={!captchaValue}
+              disabled={!captchaValue || isSubmitting}
             >
-              Contact
+              {isSubmitting ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Sending...
+                </>
+              ) : 'Contact'}
             </Button>
           </div>
         </Form>
