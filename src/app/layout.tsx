@@ -1,6 +1,3 @@
-'use client'
-
-import { useEffect } from 'react'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import '@/styles/globals.scss'
@@ -8,8 +5,8 @@ import '@/styles/globals.scss'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Dev Search',
-  description: 'Find and connect with developers',
+  title: 'Developer Search',
+  description: 'Find the perfect developer for your project',
 }
 
 export default function RootLayout({
@@ -17,10 +14,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  useEffect(() => {
-    require('bootstrap/dist/js/bootstrap.bundle.min.js')
-  }, [])
-
   return (
     <html lang="en">
       <body className={inter.className}>{children}</body>

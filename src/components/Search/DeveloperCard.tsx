@@ -13,7 +13,15 @@ interface DeveloperCardProps {
 
 export default function DeveloperCard({ dev, onSelect }: DeveloperCardProps) {
   return (
-    <Card className="h-100 hover-shadow" onClick={() => onSelect(dev)}>
+    <Card 
+      className="h-100 hover-shadow" 
+      onClick={() => onSelect(dev)}
+      role="button"
+      tabIndex={0}
+      onKeyPress={(e) => {
+        if (e.key === 'Enter') onSelect(dev)
+      }}
+    >
       <Card.Body className="d-flex">
         <div className="me-3">
           <Image

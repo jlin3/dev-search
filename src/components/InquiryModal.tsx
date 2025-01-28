@@ -12,10 +12,15 @@ interface InquiryModalProps {
 
 export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
   const [message, setMessage] = useState('');
+  const [errors, setErrors] = useState('');
   const [isSending, setIsSending] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!message.trim()) {
+      setErrors('Please enter a message');
+      return;
+    }
     setIsSending(true);
     
     // Simulate API call
@@ -44,6 +49,12 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
               required
             />
           </Form.Group>
+          
+          {errors && (
+            <div className="alert alert-danger mb-3">
+              {errors}
+            </div>
+          )}
           
           <div className="d-flex justify-content-end gap-2">
             <Button variant="secondary" onClick={onClose} disabled={isSending}>
