@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import type { Developer, Filters } from '@/types';
 import { validateEnv } from '@/utils/env';
 
@@ -15,15 +15,8 @@ interface RandomUserResponse {
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://randomuser.me/api',
-  timeout: 10000, // Add timeout
+  timeout: 10000,
 });
-
-export class APIError extends Error {
-  constructor(public status: number, message: string) {
-    super(message);
-    this.name = 'APIError';
-  }
-}
 
 export const getDevelopers = async (
   page: number = 1, 
@@ -35,14 +28,11 @@ export const getDevelopers = async (
   total: number;
 }> => {
   try {
-    // Optimize request size - reduce from 30x to 2x to minimize data transfer
     const res = await api.get<RandomUserResponse>(`/?page=${page}&results=${limit * 2}&seed=devsearch${page}`);
     let developers = enhanceDevelopers(res.data.results, `page${page}`);
 
-    // Apply filters more efficiently
     developers = applyFilters(developers, filters, location);
 
-    // Only fetch more if absolutely necessary
     if (developers.length < limit) {
       const additionalRes = await api.get<RandomUserResponse>(
         `/?page=${page + 1}&results=${limit}&seed=devsearch${page + 1}`
@@ -56,17 +46,11 @@ export const getDevelopers = async (
       total: Math.min(1000, developers.length * 10)
     };
   } catch (error) {
-    if (error instanceof AxiosError) {
-      throw new APIError(
-        error.response?.status || 500,
-        error.response?.data?.message || 'Failed to fetch developers'
-      );
-    }
-    throw new APIError(500, 'An unexpected error occurred');
+    console.error('Failed to fetch developers:', error);
+    throw new Error('Failed to fetch developers. Please try again later.');
   }
 };
 
-// Extract filter logic to separate function for better organization
 const applyFilters = (
   developers: Developer[], 
   filters?: Filters,
@@ -98,18 +82,13 @@ export const getDeveloperById = async (id: string): Promise<Developer> => {
   try {
     const res = await api.get<RandomUserResponse>(`/?seed=${id}`);
     if (!res.data.results.length) {
-      throw new APIError(404, 'Developer not found');
+      throw new Error('Developer not found');
     }
     const [dev] = enhanceDevelopers([res.data.results[0]], id);
     return dev;
   } catch (error) {
-    if (error instanceof AxiosError) {
-      throw new APIError(
-        error.response?.status || 500,
-        error.response?.data?.message || 'Failed to fetch developer'
-      );
-    }
-    throw new APIError(500, 'An unexpected error occurred');
+    console.error('Failed to fetch developer:', error);
+    throw new Error('Failed to fetch developer. Please try again later.');
   }
 };
 
