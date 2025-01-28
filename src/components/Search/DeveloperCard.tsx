@@ -11,9 +11,9 @@ interface DeveloperCardProps {
   onSelect: (dev: Developer) => void;
 }
 
-export default function DeveloperCard({ dev }: DeveloperCardProps) {
+export default function DeveloperCard({ dev, onSelect }: DeveloperCardProps) {
   return (
-    <Card className="border shadow-sm mb-3">
+    <Card className="border shadow-sm hover-shadow">
       <Card.Body>
         <div className="d-flex">
           <div className="me-3">
@@ -29,19 +29,24 @@ export default function DeveloperCard({ dev }: DeveloperCardProps) {
             <div className="d-flex justify-content-between align-items-start mb-2">
               <div>
                 <h5 className="mb-1">
-                  {dev.name.first} {dev.name.last}
+                  <Link 
+                    href={`/profile/${dev.login.uuid}`}
+                    className="text-decoration-none"
+                  >
+                    {dev.name.first} {dev.name.last}
+                  </Link>
                 </h5>
                 <div className="d-flex align-items-center gap-2 mb-2">
-                  <span className="text-muted small">iOS expert</span>
-                  <Badge bg="secondary" className="text-white">
-                    {dev.type}
+                  <span className="text-muted small">{dev.type} Developer</span>
+                  <Badge bg="primary" pill>
+                    ${dev.rate}/hr
                   </Badge>
                 </div>
                 <div className="mb-2">
-                  {dev.skills.slice(0, 3).map(skill => (
+                  {dev.skills.map(skill => (
                     <Badge 
                       key={skill} 
-                      bg="primary" 
+                      bg="secondary" 
                       className="me-1"
                     >
                       {skill}
@@ -49,18 +54,15 @@ export default function DeveloperCard({ dev }: DeveloperCardProps) {
                   ))}
                 </div>
               </div>
-              <Link 
-                href={`/profile/${dev.login.uuid}`}
-                className="text-primary text-decoration-none"
+              <button 
+                className="btn btn-outline-primary btn-sm"
+                onClick={() => onSelect(dev)}
               >
-                View profile
-              </Link>
+                Contact
+              </button>
             </div>
             <p className="mb-0 text-secondary">
-              {dev.name.first} has over 15 years of experience as a {dev.type.toLowerCase()} developer, 
-              including creating a #1 iOS game in 2008 and scaling Yahoo! ad servers. 
-              {dev.name.first}'s strengths are adaptability, clear communication, and a 
-              relentless focus on the details that get projects shipped.
+              {dev.location.city}, {dev.location.country}
             </p>
           </div>
         </div>
