@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import { BeatLoader } from 'react-spinners'
 import DeveloperCard from '@/components/Search/DeveloperCard'
@@ -129,13 +130,24 @@ function HomeContent() {
   return (
     <RootLayout>
       <Container fluid className="px-0">
-        {/* Top Navigation Bar */}
+        {/* Navigation Bar */}
         <nav className="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-          <Container fluid>
-            <a className="navbar-brand" href="/">Developer Search</a>
-            <div className="d-flex align-items-center ms-auto">
-              <a href="/resources" className="text-white text-decoration-none me-3">Resources</a>
-              <Button variant="outline-light" size="sm" className="me-2">Sign Up</Button>
+          <Container>
+            <Link href="/" className="navbar-brand">Developer Search</Link>
+            <div className="d-flex align-items-center gap-3">
+              <Link 
+                href="/browse-developers" 
+                className="text-white text-decoration-none"
+              >
+                Browse Developers
+              </Link>
+              <Link 
+                href="/resources" 
+                className="text-white text-decoration-none"
+              >
+                Resources
+              </Link>
+              <Button variant="outline-light" size="sm">Sign Up</Button>
               <Button variant="light" size="sm">Login</Button>
             </div>
           </Container>
