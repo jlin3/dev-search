@@ -1,0 +1,50 @@
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+:root {
+  --max-width: 1200px;
+  --border-radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.sidebar {
+  @media (max-width: 991.98px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1045;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    background-color: white;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+
+    &.show {
+      transform: translateX(0);
+    }
+  }
+}
+
+.hover-shadow {
+  transition: box-shadow 0.3s ease-in-out;
+  
+  &:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+}
+
+@media (max-width: 991.98px) {
+  .sidebar {
+    margin-bottom: 2rem;
+  }
+} 
