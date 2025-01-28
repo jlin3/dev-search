@@ -1,5 +1,9 @@
 import axios from 'axios';
 import type { Developer, Filters } from '@/types';
+import { validateEnv } from '@/utils/env';
+
+// Validate environment variables on initialization
+validateEnv();
 
 interface RandomUserResponse {
   results: any[];
@@ -10,8 +14,16 @@ interface RandomUserResponse {
 }
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://randomuser.me/api'
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://randomuser.me/api',
+  timeout: 10000, // Add timeout
 });
+
+export class APIError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+    this.name = 'APIError';
+  }
+}
 
 export const getDevelopers = async (
   page: number = 1, 
@@ -23,64 +35,81 @@ export const getDevelopers = async (
   total: number;
 }> => {
   try {
-    // Request significantly more results to ensure good distribution
-    const res = await api.get<RandomUserResponse>(`/?page=${page}&results=${limit * 30}&seed=devsearch${page}`);
+    // Optimize request size - reduce from 30x to 2x to minimize data transfer
+    const res = await api.get<RandomUserResponse>(`/?page=${page}&results=${limit * 2}&seed=devsearch${page}`);
     let developers = enhanceDevelopers(res.data.results, `page${page}`);
 
-    // Apply filters if they exist
-    if (filters) {
-      if (filters.type) {
-        developers = developers.filter(dev => dev.type === filters.type);
-      }
-      if (filters.skills && filters.skills.length > 0) {
-        developers = developers.filter(dev => 
-          filters.skills.every(skill => dev.skills.includes(skill))
-        );
-      }
-    }
+    // Apply filters more efficiently
+    developers = applyFilters(developers, filters, location);
 
-    // Apply location filter with case-insensitive matching
-    if (location) {
-      developers = developers.filter(dev => 
-        dev.location.country.toLowerCase().includes(location.toLowerCase())
-      );
-    }
-
-    // Ensure we have enough results after filtering
+    // Only fetch more if absolutely necessary
     if (developers.length < limit) {
-      // If we don't have enough results, fetch more
       const additionalRes = await api.get<RandomUserResponse>(
-        `/?page=${page + 1}&results=${limit * 30}&seed=devsearch${page + 1}`
+        `/?page=${page + 1}&results=${limit}&seed=devsearch${page + 1}`
       );
       const additionalDevs = enhanceDevelopers(additionalRes.data.results, `page${page + 1}`);
-      developers = [...developers, ...additionalDevs];
+      developers = [...developers, ...applyFilters(additionalDevs, filters, location)];
     }
 
-    // Return only the requested number of results
-    developers = developers.slice(0, limit);
-
     return {
-      developers,
-      total: Math.min(1000, developers.length * 20) // Simulate more pages but cap at 1000
+      developers: developers.slice(0, limit),
+      total: Math.min(1000, developers.length * 10)
     };
   } catch (error) {
-    console.error('Failed to fetch developers:', error);
-    throw error;
+    if (axios.isAxiosError(error)) {
+      throw new APIError(
+        error.response?.status || 500,
+        error.response?.data?.message || 'Failed to fetch developers'
+      );
+    }
+    throw new APIError(500, 'An unexpected error occurred');
   }
+};
+
+// Extract filter logic to separate function for better organization
+const applyFilters = (
+  developers: Developer[], 
+  filters?: Filters,
+  location?: string
+): Developer[] => {
+  let filtered = [...developers];
+
+  if (filters?.type) {
+    filtered = filtered.filter(dev => dev.type === filters.type);
+  }
+
+  if (filters?.skills?.length) {
+    filtered = filtered.filter(dev => 
+      filters.skills.every(skill => dev.skills.includes(skill))
+    );
+  }
+
+  if (location) {
+    const searchLocation = location.toLowerCase();
+    filtered = filtered.filter(dev => 
+      dev.location.country.toLowerCase().includes(searchLocation)
+    );
+  }
+
+  return filtered;
 };
 
 export const getDeveloperById = async (id: string): Promise<Developer> => {
   try {
-    // Use the ID as seed for consistent data
     const res = await api.get<RandomUserResponse>(`/?seed=${id}`);
     if (!res.data.results.length) {
-      throw new Error('Developer not found');
+      throw new APIError(404, 'Developer not found');
     }
     const [dev] = enhanceDevelopers([res.data.results[0]], id);
     return dev;
   } catch (error) {
-    console.error('Failed to fetch developer:', error);
-    throw error;
+    if (axios.isAxiosError(error)) {
+      throw new APIError(
+        error.response?.status || 500,
+        error.response?.data?.message || 'Failed to fetch developer'
+      );
+    }
+    throw new APIError(500, 'An unexpected error occurred');
   }
 };
 
