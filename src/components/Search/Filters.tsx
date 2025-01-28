@@ -23,38 +23,40 @@ export default function Filters({ filters, setFilters }: FiltersProps) {
   }
 
   return (
-    <aside className="filters">
-      <div className="card">
-        <div className="card-body">
-          <h5 className="mb-3">Developer type:</h5>
-          <Form>
-            {DEVELOPER_TYPES.map(type => (
-              <Form.Check
-                key={type}
-                type="checkbox"
-                id={`type-${type}`}
-                label={type}
-                checked={filters.type === type}
-                onChange={() => handleTypeChange(type)}
-                className="mb-2"
-              />
-            ))}
-
-            <h5 className="mt-4 mb-3">Skills:</h5>
-            {SKILLS.map(skill => (
-              <Form.Check
-                key={skill}
-                type="checkbox"
-                id={`skill-${skill}`}
-                label={skill}
-                checked={filters.skills.includes(skill)}
-                onChange={() => handleSkillChange(skill)}
-                className="mb-2"
-              />
-            ))}
-          </Form>
-        </div>
+    <div className="filters">
+      <div className="mb-4">
+        <h5 className="mb-3">Developer type:</h5>
+        <Form>
+          {DEVELOPER_TYPES.map(type => (
+            <Form.Check
+              key={type}
+              type="checkbox"
+              id={`type-${type}`}
+              label={type}
+              checked={filters.type === type}
+              onChange={() => handleTypeChange(type)}
+              className="mb-2"
+            />
+          ))}
+        </Form>
       </div>
-    </aside>
+
+      <div>
+        <h5 className="mb-3">Skills:</h5>
+        <Form>
+          {SKILLS.map(skill => (
+            <Form.Check
+              key={skill}
+              type="checkbox"
+              id={`skill-${skill}`}
+              label={skill}
+              checked={filters.skills.includes(skill)}
+              onChange={() => handleSkillChange(skill)}
+              className="mb-2"
+            />
+          ))}
+        </Form>
+      </div>
+    </div>
   )
 } 
