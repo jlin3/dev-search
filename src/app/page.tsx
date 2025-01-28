@@ -38,11 +38,14 @@ export default function Home() {
 
   // Update URL when filters change
   const updateFilters = (newFilters: FilterType) => {
-    const params = new URLSearchParams(searchParams)
+    const params = new URLSearchParams()
     if (newFilters.type) params.set('type', newFilters.type)
-    else params.delete('type')
     if (newFilters.skills.length) params.set('skills', newFilters.skills.join(','))
-    else params.delete('skills')
+    
+    // Preserve current page if it exists
+    const page = searchParams.get('page')
+    if (page) params.set('page', page)
+    
     router.push(`/?${params.toString()}`)
     setFilters(newFilters)
   }
