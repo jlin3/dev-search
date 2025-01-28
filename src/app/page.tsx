@@ -1,39 +1,62 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Container, Row, Col, Form } from 'react-bootstrap'
 import { BeatLoader } from 'react-spinners'
 import DeveloperCard from '@/components/Search/DeveloperCard'
 import Filters from '@/components/Search/Filters'
 import Pagination from '@/components/Search/Pagination'
 import InquiryModal from '@/components/InquiryModal'
-import type { Developer, Filters } from '@/types'
+import ErrorBoundary from '@/components/ErrorBoundary'
+import type { Developer, Filters as FilterType } from '@/types'
 import RootLayout from '@/components/Layout/RootLayout'
+import { getDevelopers } from '@/services/api'
 
 const ITEMS_PER_PAGE = 8
 
 export default function Home() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
   const [developers, setDevelopers] = useState<Developer[]>([])
+  const [totalDevelopers, setTotalDevelopers] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [filters, setFilters] = useState<Filters>({ type: '', skills: [] })
+  const [error, setError] = useState('')
+  
+  // Get page from URL or default to 1
+  const currentPage = Number(searchParams.get('page')) || 1
+  
+  // Get filters from URL
+  const initialFilters = {
+    type: searchParams.get('type') || '',
+    skills: searchParams.get('skills')?.split(',').filter(Boolean) || []
+  }
+  
+  const [filters, setFilters] = useState<FilterType>(initialFilters)
   const [selectedDev, setSelectedDev] = useState<Developer | null>(null)
+
+  // Update URL when filters change
+  const updateFilters = (newFilters: FilterType) => {
+    const params = new URLSearchParams(searchParams)
+    if (newFilters.type) params.set('type', newFilters.type)
+    else params.delete('type')
+    if (newFilters.skills.length) params.set('skills', newFilters.skills.join(','))
+    else params.delete('skills')
+    router.push(`/?${params.toString()}`)
+    setFilters(newFilters)
+  }
 
   useEffect(() => {
     const fetchDevelopers = async () => {
       try {
-        const res = await axios.get('https://randomuser.me/api/?results=100&seed=devsearch')
-        const enhanced = res.data.results.map((dev: any) => ({
-          ...dev,
-          skills: ['React', 'Node.js', 'Python', 'JavaScript', 'Java']
-            .sort(() => 0.5 - Math.random())
-            .slice(0, 3),
-          type: ['Full Stack', 'Frontend', 'Backend'][Math.floor(Math.random() * 3)],
-          rate: Math.floor(Math.random() * 100) + 50
-        }))
-        setDevelopers(enhanced)
+        setLoading(true)
+        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE)
+        setDevelopers(data)
+        setTotalDevelopers(total)
+        setError('')
       } catch (error) {
+        setError('Failed to fetch developers. Please try again later.')
         console.error('Failed to fetch developers:', error)
       } finally {
         setLoading(false)
@@ -41,78 +64,76 @@ export default function Home() {
     }
 
     fetchDevelopers()
-  }, [])
+  }, [currentPage])
 
-  const filteredDevelopers = developers.filter(dev => {
-    if (filters.type && dev.type !== filters.type) return false
-    if (filters.skills.length > 0 && 
-        !filters.skills.every(skill => dev.skills.includes(skill))) return false
-    return true
-  })
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams)
+    params.set('page', page.toString())
+    router.push(`/?${params.toString()}`)
+  }
 
-  const paginatedDevelopers = filteredDevelopers.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  )
-
-  if (loading) {
+  if (error) {
     return (
-      <div className="d-flex justify-content-center align-items-center min-vh-100">
-        <BeatLoader color="#0d6efd" />
+      <div className="alert alert-danger m-4" role="alert">
+        <h4 className="alert-heading">Error</h4>
+        <p>{error}</p>
       </div>
     )
   }
 
   return (
-    <RootLayout>
-      <Container fluid>
-        <div className="d-flex align-items-center mb-4">
-          <h1 className="mb-0">Top full-stack developers in United States</h1>
-          <div className="ms-auto">
-            <Form.Select className="d-inline-block w-auto me-2">
-              <option>Full-stack developer in</option>
-              <option>Frontend developer in</option>
-              <option>Backend developer in</option>
-            </Form.Select>
-            <Form.Control
-              type="text"
-              placeholder="United States"
-              className="d-inline-block w-auto"
-            />
+    <ErrorBoundary>
+      <RootLayout>
+        <Container fluid>
+          <div className="d-flex align-items-center mb-4">
+            <h1 className="mb-0">Top full-stack developers in United States</h1>
+            <div className="ms-auto">
+              <Form.Select className="d-inline-block w-auto me-2">
+                <option>Full-stack developer in</option>
+                <option>Frontend developer in</option>
+                <option>Backend developer in</option>
+              </Form.Select>
+              <Form.Control
+                type="text"
+                placeholder="United States"
+                className="d-inline-block w-auto"
+              />
+            </div>
           </div>
-        </div>
 
-        <Row>
-          <Col lg={3}>
-            <Filters filters={filters} setFilters={setFilters} />
-          </Col>
-          <Col lg={9}>
-            <Row xs={1} md={2} className="g-4">
-              {paginatedDevelopers.map(dev => (
-                <Col key={dev.login.uuid}>
-                  <DeveloperCard dev={dev} onSelect={setSelectedDev} />
-                </Col>
-              ))}
-            </Row>
-            {filteredDevelopers.length > ITEMS_PER_PAGE && (
-              <div className="mt-4">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={Math.ceil(filteredDevelopers.length / ITEMS_PER_PAGE)}
-                  onPageChange={setCurrentPage}
-                />
-              </div>
-            )}
-          </Col>
-        </Row>
+          <Row>
+            <Col lg={3}>
+              <Filters filters={filters} setFilters={setFilters} />
+            </Col>
+            <Col lg={9}>
+              <Row xs={1} md={2} className="g-4">
+                {developers.map(dev => (
+                  <Col key={dev.login.uuid}>
+                    <DeveloperCard dev={dev} onSelect={setSelectedDev} />
+                  </Col>
+                ))}
+              </Row>
+              {totalDevelopers > ITEMS_PER_PAGE && (
+                <div className="mt-4">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={Math.ceil(totalDevelopers / ITEMS_PER_PAGE)}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
+              )}
+            </Col>
+          </Row>
 
-        {selectedDev && (
-          <InquiryModal
-            dev={selectedDev}
-            onClose={() => setSelectedDev(null)}
-          />
-        )}
-      </Container>
-    </RootLayout>
+          {selectedDev && (
+            <InquiryModal
+              dev={selectedDev}
+              onClose={() => setSelectedDev(null)}
+            />
+          )}
+        </Container>
+      </RootLayout>
+    </ErrorBoundary>
   )
 } 

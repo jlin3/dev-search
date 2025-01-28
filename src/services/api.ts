@@ -5,12 +5,29 @@ const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://randomuser.me/api'
 });
 
-export const getDevelopers = async (count: number = 100): Promise<Developer[]> => {
+export const getDevelopers = async (page: number = 1, limit: number = 8): Promise<{
+  developers: Developer[];
+  total: number;
+}> => {
   try {
-    const res = await api.get(`/?results=${count}&seed=devsearch`);
-    return enhanceDevelopers(res.data.results);
+    const res = await api.get(`/?page=${page}&results=${limit}&seed=devsearch`);
+    return {
+      developers: enhanceDevelopers(res.data.results),
+      total: res.data.info.results
+    };
   } catch (error) {
     console.error('Failed to fetch developers:', error);
+    throw error;
+  }
+};
+
+export const getDeveloperById = async (id: string): Promise<Developer> => {
+  try {
+    const res = await api.get(`/?seed=${id}`);
+    const [dev] = enhanceDevelopers(res.data.results);
+    return dev;
+  } catch (error) {
+    console.error('Failed to fetch developer:', error);
     throw error;
   }
 };
@@ -31,5 +48,5 @@ const getRandomSkills = () => {
 };
 
 const getRandomType = () => {
-  return ['Full Stack', 'Frontend', 'Backend'][Math.floor(Math.random() * 3)] as Developer['type'];
+  return ['Full Stack', 'Frontend', 'Backend'][Math.floor(Math.random() * 3)];
 }; 
