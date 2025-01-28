@@ -8,7 +8,6 @@ import DeveloperCard from '@/components/Search/DeveloperCard'
 import Filters from '@/components/Search/Filters'
 import Pagination from '@/components/Search/Pagination'
 import InquiryModal from '@/components/InquiryModal'
-import ErrorBoundary from '@/components/ErrorBoundary'
 import type { Developer, Filters as FilterType } from '@/types'
 import RootLayout from '@/components/Layout/RootLayout'
 import { getDevelopers } from '@/services/api'
@@ -31,6 +30,7 @@ function HomeContent() {
   const [totalDevelopers, setTotalDevelopers] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showFilters, setShowFilters] = useState(false)
   
   // Get page from URL or default to 1
   const currentPage = Number(searchParams.get('page')) || 1
@@ -43,7 +43,6 @@ function HomeContent() {
   
   const [filters, setFilters] = useState<FilterType>(initialFilters)
   const [selectedDev, setSelectedDev] = useState<Developer | null>(null)
-  const [showFilters, setShowFilters] = useState(false)
 
   // Update URL when filters change
   const updateFilters = (newFilters: FilterType) => {
@@ -105,104 +104,102 @@ function HomeContent() {
   }
 
   return (
-    <ErrorBoundary>
-      <RootLayout>
-        <Container fluid className="px-0">
-          {/* Top Navigation Bar */}
-          <nav className="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-            <Container fluid>
-              <a className="navbar-brand" href="/">Developer Search</a>
-              <div className="d-flex align-items-center ms-auto">
-                <a href="/resources" className="text-white text-decoration-none me-3">Resources</a>
-                <Button variant="outline-light" size="sm" className="me-2">Sign Up</Button>
-                <Button variant="light" size="sm">Login</Button>
-              </div>
+    <RootLayout>
+      <Container fluid className="px-0">
+        {/* Top Navigation Bar */}
+        <nav className="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+          <Container fluid>
+            <a className="navbar-brand" href="/">Developer Search</a>
+            <div className="d-flex align-items-center ms-auto">
+              <a href="/resources" className="text-white text-decoration-none me-3">Resources</a>
+              <Button variant="outline-light" size="sm" className="me-2">Sign Up</Button>
+              <Button variant="light" size="sm">Login</Button>
             </div>
-          </nav>
+          </Container>
+        </nav>
 
-          {/* Search Header */}
-          <Container>
-            <div className="search-header mb-4">
-              <Row className="align-items-center">
-                <Col>
-                  <Form className="d-flex flex-column flex-md-row gap-2">
-                    <Form.Select className="w-auto">
-                      <option>Full-stack developer in</option>
-                      <option>Frontend developer in</option>
-                      <option>Backend developer in</option>
-                    </Form.Select>
-                    <Form.Control
-                      type="text"
-                      placeholder="United States"
-                      className="w-auto"
-                    />
-                    <Button variant="primary" className="px-4">Search</Button>
-                  </Form>
-                </Col>
-              </Row>
-            </div>
-
-            <Row>
-              {/* Filters Sidebar - Collapsible on mobile */}
-              <Col lg={3} className="mb-4 mb-lg-0">
-                <div className="card">
-                  <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-center d-lg-none mb-3">
-                      <h5 className="mb-0">Filters</h5>
-                      <Button 
-                        variant="link" 
-                        className="p-0 text-decoration-none"
-                        onClick={() => setShowFilters(!showFilters)}
-                      >
-                        {showFilters ? 'Hide' : 'Show'}
-                      </Button>
-                    </div>
-                    <div className={`filters-content ${showFilters ? 'd-block' : 'd-none d-lg-block'}`}>
-                      <Filters filters={filters} setFilters={updateFilters} />
-                    </div>
-                  </div>
-                </div>
-              </Col>
-
-              {/* Main Content */}
-              <Col lg={9}>
-                {loading ? (
-                  <div className="text-center py-5">
-                    <BeatLoader color="#007bff" />
-                  </div>
-                ) : (
-                  <>
-                    <Row className="g-4">
-                      {developers.map(dev => (
-                        <Col xs={12} key={dev.login.uuid}>
-                          <DeveloperCard dev={dev} onSelect={setSelectedDev} />
-                        </Col>
-                      ))}
-                    </Row>
-                    
-                    {totalDevelopers > ITEMS_PER_PAGE && (
-                      <div className="mt-4">
-                        <Pagination
-                          currentPage={currentPage}
-                          totalPages={Math.ceil(totalDevelopers / ITEMS_PER_PAGE)}
-                          onPageChange={handlePageChange}
-                        />
-                      </div>
-                    )}
-                  </>
-                )}
+        {/* Search Header */}
+        <Container>
+          <div className="search-header mb-4">
+            <Row className="align-items-center">
+              <Col>
+                <Form className="d-flex flex-column flex-md-row gap-2">
+                  <Form.Select className="w-auto">
+                    <option>Full-stack developer in</option>
+                    <option>Frontend developer in</option>
+                    <option>Backend developer in</option>
+                  </Form.Select>
+                  <Form.Control
+                    type="text"
+                    placeholder="United States"
+                    className="w-auto"
+                  />
+                  <Button variant="primary" className="px-4">Search</Button>
+                </Form>
               </Col>
             </Row>
-          </Container>
+          </div>
 
-          {selectedDev && (
-            <InquiryModal
-              dev={selectedDev}
-              onClose={() => setSelectedDev(null)}
-            />
-          )}
+          <Row>
+            {/* Filters Sidebar - Collapsible on mobile */}
+            <Col lg={3} className="mb-4 mb-lg-0">
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex justify-content-between align-items-center d-lg-none mb-3">
+                    <h5 className="mb-0">Filters</h5>
+                    <Button 
+                      variant="link" 
+                      className="p-0 text-decoration-none"
+                      onClick={() => setShowFilters(!showFilters)}
+                    >
+                      {showFilters ? 'Hide' : 'Show'}
+                    </Button>
+                  </div>
+                  <div className={`filters-content ${showFilters ? 'd-block' : 'd-none d-lg-block'}`}>
+                    <Filters filters={filters} setFilters={updateFilters} />
+                  </div>
+                </div>
+              </div>
+            </Col>
+
+            {/* Main Content */}
+            <Col lg={9}>
+              {loading ? (
+                <div className="text-center py-5">
+                  <BeatLoader color="#007bff" />
+                </div>
+              ) : (
+                <>
+                  <Row className="g-4">
+                    {developers.map(dev => (
+                      <Col xs={12} key={dev.login.uuid}>
+                        <DeveloperCard dev={dev} onSelect={setSelectedDev} />
+                      </Col>
+                    ))}
+                  </Row>
+                  
+                  {totalDevelopers > ITEMS_PER_PAGE && (
+                    <div className="mt-4">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={Math.ceil(totalDevelopers / ITEMS_PER_PAGE)}
+                        onPageChange={handlePageChange}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </Col>
+          </Row>
         </Container>
-      </RootLayout>
-    </ErrorBoundary>
+
+        {selectedDev && (
+          <InquiryModal
+            dev={selectedDev}
+            onClose={() => setSelectedDev(null)}
+          />
+        )}
+      </Container>
+    </RootLayout>
   )
 } 
