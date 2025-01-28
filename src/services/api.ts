@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import type { Developer, Filters } from '@/types';
 import { validateEnv } from '@/utils/env';
 
@@ -56,7 +56,7 @@ export const getDevelopers = async (
       total: Math.min(1000, developers.length * 10)
     };
   } catch (error) {
-    if (axios.isAxiosError(error)) {
+    if (error instanceof AxiosError) {
       throw new APIError(
         error.response?.status || 500,
         error.response?.data?.message || 'Failed to fetch developers'
@@ -103,7 +103,7 @@ export const getDeveloperById = async (id: string): Promise<Developer> => {
     const [dev] = enhanceDevelopers([res.data.results[0]], id);
     return dev;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
+    if (error instanceof AxiosError) {
       throw new APIError(
         error.response?.status || 500,
         error.response?.data?.message || 'Failed to fetch developer'
