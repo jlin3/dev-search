@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import { APIError } from '@/services/api'
 
 interface Props {
   children: React.ReactNode;
@@ -24,27 +23,11 @@ export default class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log to error reporting service
     console.error('ErrorBoundary caught an error:', error, errorInfo)
   }
 
   render() {
     if (this.state.hasError) {
-      if (this.state.error instanceof APIError) {
-        return (
-          <div className="alert alert-danger m-4" role="alert">
-            <h4 className="alert-heading">API Error</h4>
-            <p>{this.state.error.message}</p>
-            <button 
-              className="btn btn-outline-danger"
-              onClick={() => window.location.reload()}
-            >
-              Try Again
-            </button>
-          </div>
-        )
-      }
-
       return this.props.fallback || (
         <div className="alert alert-danger m-4" role="alert">
           <h4 className="alert-heading">Something went wrong</h4>
