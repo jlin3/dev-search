@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Developer } from '@/types';
+import type { Developer, Filters } from '@/types';
 
 interface RandomUserResponse {
   results: any[];
@@ -13,15 +13,33 @@ const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://randomuser.me/api'
 });
 
-export const getDevelopers = async (page: number = 1, limit: number = 8): Promise<{
+export const getDevelopers = async (
+  page: number = 1, 
+  limit: number = 8,
+  filters?: Filters
+): Promise<{
   developers: Developer[];
   total: number;
 }> => {
   try {
     const res = await api.get<RandomUserResponse>(`/?page=${page}&results=${limit}&seed=devsearch`);
+    let developers = enhanceDevelopers(res.data.results);
+
+    // Apply filters if they exist
+    if (filters) {
+      if (filters.type) {
+        developers = developers.filter(dev => dev.type === filters.type);
+      }
+      if (filters.skills && filters.skills.length > 0) {
+        developers = developers.filter(dev => 
+          filters.skills.every(skill => dev.skills.includes(skill))
+        );
+      }
+    }
+
     return {
-      developers: enhanceDevelopers(res.data.results),
-      total: res.data.info.results
+      developers,
+      total: developers.length * 5 // Simulate more pages of filtered results
     };
   } catch (error) {
     console.error('Failed to fetch developers:', error);

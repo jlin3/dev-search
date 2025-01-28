@@ -11,11 +11,11 @@ export const SKILLS = [
 ] as const
 
 export const DEVELOPER_TYPES = [
-  'Full-stack developer',
-  'Backend developer',
-  'Frontend developer',
-  'Mobile developer',
-  'Data scientist'
+  'Full Stack',
+  'Backend',
+  'Frontend',
+  'Mobile',
+  'Data Scientist'
 ] as const
 
 export type Skill = typeof SKILLS[number]

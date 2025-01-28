@@ -62,7 +62,7 @@ function HomeContent() {
     const fetchDevelopers = async () => {
       try {
         setLoading(true)
-        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE)
+        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE, filters)
         setDevelopers(data)
         setTotalDevelopers(total)
         setError('')
@@ -75,7 +75,7 @@ function HomeContent() {
     }
 
     fetchDevelopers()
-  }, [currentPage])
+  }, [currentPage, filters])
 
   // Handle page change
   const handlePageChange = (page: number) => {
