@@ -21,11 +21,17 @@ export default function ContactModal({ dev, show, onClose }: ContactModalProps) 
   const [captchaValue, setCaptchaValue] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const recaptchaRef = useRef<ReCAPTCHA>(null)
+  const [errors, setErrors] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!captchaValue) {
       alert('Please complete the reCAPTCHA')
+      return
+    }
+
+    if (!formData.message.trim()) {
+      setErrors('Please enter a message')
       return
     }
 
