@@ -11,7 +11,6 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <div className="min-vh-100 d-flex flex-column">
-      <Header />
       <main className="flex-grow-1">
         {children}
       </main>

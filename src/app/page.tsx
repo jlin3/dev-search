@@ -1,8 +1,7 @@
 'use client'
 
-import React, { useState, useEffect, Suspense } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
 import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import { BeatLoader } from 'react-spinners'
 import DeveloperCard from '@/components/Search/DeveloperCard'
@@ -11,6 +10,7 @@ import Pagination from '@/components/Search/Pagination'
 import InquiryModal from '@/components/InquiryModal'
 import type { Developer, Filters as FilterType } from '@/types'
 import RootLayout from '@/components/Layout/RootLayout'
+import Header from '@/components/Layout/Header'
 import { getDevelopers } from '@/services/api'
 
 const ITEMS_PER_PAGE = 8
@@ -24,14 +24,6 @@ const DEVELOPER_TYPES = [
 ]
 
 export default function Home() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <HomeContent />
-    </Suspense>
-  )
-}
-
-function HomeContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -55,6 +47,26 @@ function HomeContent() {
   const [filters, setFilters] = useState<FilterType>(initialFilters)
   const [selectedDev, setSelectedDev] = useState<Developer | null>(null)
 
+  useEffect(() => {
+    const fetchDevelopers = async () => {
+      try {
+        setLoading(true)
+        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE, filters, searchLocation)
+        console.log('Fetched developers:', data) // Debug log
+        setDevelopers(data)
+        setTotalDevelopers(total)
+        setError('')
+      } catch (error) {
+        console.error('Failed to fetch developers:', error)
+        setError('Failed to fetch developers. Please try again later.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDevelopers()
+  }, [currentPage, filters, searchLocation])
+
   // Handle search
   const handleSearch = () => {
     const type = searchType.replace(' in', '')
@@ -65,122 +77,58 @@ function HomeContent() {
     setFilters({ ...filters, type })
   }
 
-  // Update URL when filters change
-  const updateFilters = (newFilters: FilterType) => {
-    const params = new URLSearchParams()
-    if (newFilters.type) params.set('type', newFilters.type)
-    if (newFilters.skills.length) params.set('skills', newFilters.skills.join(','))
-    if (searchLocation) params.set('location', searchLocation)
-    
-    // Preserve current page if it exists
-    const page = searchParams.get('page')
-    if (page) params.set('page', page)
-    
-    router.push(`/?${params.toString()}`)
-    setFilters(newFilters)
-  }
-
-  useEffect(() => {
-    const fetchDevelopers = async () => {
-      try {
-        setLoading(true)
-        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE, filters, searchLocation)
-        setDevelopers(data)
-        setTotalDevelopers(total)
-        setError('')
-      } catch (error) {
-        setError('Failed to fetch developers. Please try again later.')
-        console.error('Failed to fetch developers:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchDevelopers()
-  }, [currentPage, filters, searchLocation])
-
-  // Handle page change
-  const handlePageChange = (page: number) => {
-    const params = new URLSearchParams()
-    
-    // Preserve existing filters
-    const type = searchParams.get('type')
-    const skills = searchParams.get('skills')
-    const location = searchParams.get('location')
-    
-    if (type) params.set('type', type)
-    if (skills) params.set('skills', skills)
-    if (location) params.set('location', location)
-    
-    // Set new page
-    params.set('page', page.toString())
-    
-    router.push(`/?${params.toString()}`)
-  }
-
   if (error) {
     return (
-      <div className="alert alert-danger m-4" role="alert">
-        <h4 className="alert-heading">Error</h4>
-        <p>{error}</p>
-      </div>
+      <RootLayout>
+        <Header />
+        <div className="alert alert-danger m-4" role="alert">
+          <h4 className="alert-heading">Error</h4>
+          <p>{error}</p>
+        </div>
+      </RootLayout>
     )
   }
 
   return (
     <RootLayout>
+      <Header />
       <Container fluid className="px-0">
-        {/* Main Navigation Bar */}
-        <nav className="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-          <Container>
-            <Link href="/" className="navbar-brand fs-4">Developer Search</Link>
-            <div className="d-flex align-items-center gap-3">
-              <Link href="/browse-developers" className="nav-link text-white">Browse Developers</Link>
-              <Link href="/resources" className="nav-link text-white">Resources</Link>
-              <div className="ms-3">
-                <Button variant="outline-light" size="sm" className="me-2">Sign Up</Button>
-                <Button variant="light" size="sm">Login</Button>
-              </div>
-            </div>
-          </Container>
-        </nav>
-
         {/* Search Header */}
-        <Container>
-          <div className="search-header rounded p-4 mb-4">
-            <Row className="align-items-center">
-              <Col>
-                <Form className="d-flex flex-column flex-md-row gap-2">
-                  <Form.Select 
-                    className="w-auto"
-                    value={searchType}
-                    onChange={(e) => setSearchType(e.target.value)}
-                  >
-                    {DEVELOPER_TYPES.map(type => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
-                  </Form.Select>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter country name"
-                    className="w-auto"
-                    value={searchLocation}
-                    onChange={(e) => setSearchLocation(e.target.value)}
-                  />
-                  <Button 
-                    variant="primary" 
-                    className="px-4"
-                    onClick={handleSearch}
-                  >
-                    Search
-                  </Button>
-                </Form>
-              </Col>
-            </Row>
-          </div>
+        <Container className="py-4">
+          <Row className="align-items-center">
+            <Col>
+              <Form className="d-flex flex-column flex-md-row gap-2">
+                <Form.Select 
+                  className="w-auto"
+                  value={searchType}
+                  onChange={(e) => setSearchType(e.target.value)}
+                >
+                  {DEVELOPER_TYPES.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </Form.Select>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter country name"
+                  className="w-auto"
+                  value={searchLocation}
+                  onChange={(e) => setSearchLocation(e.target.value)}
+                />
+                <Button 
+                  variant="primary" 
+                  className="px-4"
+                  onClick={handleSearch}
+                >
+                  Search
+                </Button>
+              </Form>
+            </Col>
+          </Row>
+        </Container>
 
+        <Container>
           <Row>
-            {/* Filters Sidebar - Collapsible on mobile */}
+            {/* Filters Sidebar */}
             <Col lg={3} className="mb-4 mb-lg-0">
               <div className="card">
                 <div className="card-body">
@@ -195,7 +143,7 @@ function HomeContent() {
                     </Button>
                   </div>
                   <div className={`filters-content ${showFilters ? 'd-block' : 'd-none d-lg-block'}`}>
-                    <Filters filters={filters} setFilters={updateFilters} />
+                    <Filters filters={filters} setFilters={setFilters} />
                   </div>
                 </div>
               </div>
@@ -207,7 +155,7 @@ function HomeContent() {
                 <div className="text-center py-5">
                   <BeatLoader color="#007bff" />
                 </div>
-              ) : (
+              ) : developers.length > 0 ? (
                 <>
                   <Row className="g-4">
                     {developers.map(dev => (
@@ -222,11 +170,19 @@ function HomeContent() {
                       <Pagination
                         currentPage={currentPage}
                         totalPages={Math.ceil(totalDevelopers / ITEMS_PER_PAGE)}
-                        onPageChange={handlePageChange}
+                        onPageChange={(page) => {
+                          const params = new URLSearchParams(searchParams.toString())
+                          params.set('page', page.toString())
+                          router.push(`/?${params.toString()}`)
+                        }}
                       />
                     </div>
                   )}
                 </>
+              ) : (
+                <div className="text-center py-5">
+                  <p>No developers found matching your criteria.</p>
+                </div>
               )}
             </Col>
           </Row>
