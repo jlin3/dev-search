@@ -63,6 +63,29 @@ function HomeContent() {
   const [filters, setFilters] = useState<FilterType>(initialFilters)
   const [selectedDev, setSelectedDev] = useState<Developer | null>(null)
 
+  // Initial fetch on mount
+  useEffect(() => {
+    const fetchInitialDevelopers = async () => {
+      try {
+        setLoading(true)
+        const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, { type: 'Full-Stack Developer', skills: [] }, 'United States')
+        setDevelopers(data)
+        setTotalDevelopers(total)
+        setError('')
+      } catch (error) {
+        console.error('Failed to fetch developers:', error)
+        setError('Failed to fetch developers. Please try again later.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (!searchParams.get('type')) {
+      fetchInitialDevelopers()
+    }
+  }, [])
+
+  // Fetch when filters change
   useEffect(() => {
     const fetchDevelopers = async () => {
       try {
@@ -80,8 +103,10 @@ function HomeContent() {
       }
     }
 
-    fetchDevelopers()
-  }, [currentPage, filters, searchLocation])
+    if (searchParams.get('type')) {
+      fetchDevelopers()
+    }
+  }, [currentPage, filters, searchLocation, searchParams])
 
   // Handle search
   const handleSearch = () => {
