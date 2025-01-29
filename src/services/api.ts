@@ -148,13 +148,32 @@ const getRandomSkills = (type: string, seed?: string): string[] => {
 };
 
 const enhanceDevelopers = (developers: any[], seed?: string): Developer[] => {
-  return developers.map(dev => {
+  console.log('Enhancing developers with seed:', seed);
+  const enhanced = developers.map(dev => {
     const type = getRandomType(seed || dev.login.uuid);
+    const skills = getRandomSkills(type, seed || dev.login.uuid);
+    const rate = Math.floor(Math.random() * 100) + 50;
+    
+    console.log('Enhanced developer:', {
+      name: `${dev.name.first} ${dev.name.last}`,
+      type,
+      skills,
+      rate
+    });
+    
     return {
       ...dev,
-      skills: getRandomSkills(type, seed || dev.login.uuid),
+      skills,
       type,
-      rate: Math.floor(Math.random() * 100) + 50
+      rate
     };
   });
+  
+  console.log('All enhanced developers:', enhanced.map(dev => ({
+    name: `${dev.name.first} ${dev.name.last}`,
+    type: dev.type,
+    skills: dev.skills
+  })));
+  
+  return enhanced;
 }; 

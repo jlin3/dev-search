@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import { BeatLoader } from 'react-spinners'
+import Link from 'next/link'
 import DeveloperCard from '@/components/Search/DeveloperCard'
 import Filters from '@/components/Search/Filters'
 import Pagination from '@/components/Search/Pagination'
@@ -47,7 +48,7 @@ function HomeContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showFilters, setShowFilters] = useState(false)
-  const [searchType, setSearchType] = useState('Full-stack developer in')
+  const [searchType, setSearchType] = useState('Full-Stack Developer')
   const [searchLocation, setSearchLocation] = useState('United States')
   
   // Get page from URL or default to 1
@@ -55,7 +56,7 @@ function HomeContent() {
   
   // Get filters from URL
   const initialFilters = {
-    type: searchParams.get('type') || '',
+    type: searchParams.get('type') || 'Full-Stack Developer',
     skills: searchParams.get('skills')?.split(',').filter(Boolean) || []
   }
   
@@ -93,17 +94,22 @@ function HomeContent() {
     router.push(`/?${params.toString()}`)
   }
 
-  if (error) {
-    return (
-      <div className="alert alert-danger m-4" role="alert">
-        <h4 className="alert-heading">Error</h4>
-        <p>{error}</p>
-      </div>
-    )
-  }
-
   return (
     <Container fluid className="px-0">
+      {/* Navigation */}
+      <Container className="py-3">
+        <Row className="justify-content-between align-items-center">
+          <Col>
+            <h1 className="h4 mb-0">Developer Search</h1>
+          </Col>
+          <Col className="text-end">
+            <Link href="/browse" className="text-decoration-none">
+              Browse Developers
+            </Link>
+          </Col>
+        </Row>
+      </Container>
+
       {/* Search Header */}
       <Container className="py-4">
         <Row className="align-items-center justify-content-end">
@@ -144,67 +150,74 @@ function HomeContent() {
         </Row>
       </Container>
 
-      <Container>
-        <Row>
-          {/* Filters Sidebar */}
-          <Col lg={3} className="mb-4 mb-lg-0">
-            <div className="card">
-              <div className="card-body">
-                <div className="d-flex justify-content-between align-items-center d-lg-none mb-3">
-                  <h5 className="mb-0">Filters</h5>
-                  <Button 
-                    variant="link" 
-                    className="p-0 text-decoration-none"
-                    onClick={() => setShowFilters(!showFilters)}
-                  >
-                    {showFilters ? 'Hide' : 'Show'}
-                  </Button>
-                </div>
-                <div className={`filters-content ${showFilters ? 'd-block' : 'd-none d-lg-block'}`}>
-                  <Filters filters={filters} setFilters={setFilters} />
-                </div>
-              </div>
-            </div>
-          </Col>
-
-          {/* Main Content */}
-          <Col lg={9}>
-            {loading ? (
-              <div className="text-center py-5">
-                <BeatLoader color="#007bff" />
-              </div>
-            ) : developers.length > 0 ? (
-              <>
-                <Row className="g-4">
-                  {developers.map(dev => (
-                    <Col xs={12} key={dev.login.uuid}>
-                      <DeveloperCard dev={dev} onSelect={setSelectedDev} />
-                    </Col>
-                  ))}
-                </Row>
-                
-                {totalDevelopers > ITEMS_PER_PAGE && (
-                  <div className="mt-4">
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={Math.ceil(totalDevelopers / ITEMS_PER_PAGE)}
-                      onPageChange={(page) => {
-                        const params = new URLSearchParams(searchParams.toString())
-                        params.set('page', page.toString())
-                        router.push(`/?${params.toString()}`)
-                      }}
-                    />
+      {error ? (
+        <div className="alert alert-danger m-4" role="alert">
+          <h4 className="alert-heading">Error</h4>
+          <p>{error}</p>
+        </div>
+      ) : (
+        <Container>
+          <Row>
+            {/* Filters Sidebar */}
+            <Col lg={3} className="mb-4 mb-lg-0">
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex justify-content-between align-items-center d-lg-none mb-3">
+                    <h5 className="mb-0">Filters</h5>
+                    <Button 
+                      variant="link" 
+                      className="p-0 text-decoration-none"
+                      onClick={() => setShowFilters(!showFilters)}
+                    >
+                      {showFilters ? 'Hide' : 'Show'}
+                    </Button>
                   </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center py-5">
-                <p>No developers found matching your criteria.</p>
+                  <div className={`filters-content ${showFilters ? 'd-block' : 'd-none d-lg-block'}`}>
+                    <Filters filters={filters} setFilters={setFilters} />
+                  </div>
+                </div>
               </div>
-            )}
-          </Col>
-        </Row>
-      </Container>
+            </Col>
+
+            {/* Main Content */}
+            <Col lg={9}>
+              {loading ? (
+                <div className="text-center py-5">
+                  <BeatLoader color="#007bff" />
+                </div>
+              ) : developers.length > 0 ? (
+                <>
+                  <Row className="g-4">
+                    {developers.map(dev => (
+                      <Col xs={12} key={dev.login.uuid}>
+                        <DeveloperCard dev={dev} onSelect={setSelectedDev} />
+                      </Col>
+                    ))}
+                  </Row>
+                  
+                  {totalDevelopers > ITEMS_PER_PAGE && (
+                    <div className="mt-4">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={Math.ceil(totalDevelopers / ITEMS_PER_PAGE)}
+                        onPageChange={(page) => {
+                          const params = new URLSearchParams(searchParams.toString())
+                          params.set('page', page.toString())
+                          router.push(`/?${params.toString()}`)
+                        }}
+                      />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-5">
+                  <p>No developers found matching your criteria.</p>
+                </div>
+              )}
+            </Col>
+          </Row>
+        </Container>
+      )}
 
       {selectedDev && (
         <InquiryModal
