@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, Suspense } from 'react'
-import { Container, Row, Col, Form } from 'react-bootstrap'
+import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import { BeatLoader } from 'react-spinners'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -94,49 +94,53 @@ function FindDevelopersContent() {
         <span>Find Developers</span>
       </div>
 
+      {/* Page Title */}
+      <h1 className="h4 mb-4">Developer Search</h1>
+
       {/* Search Controls */}
       <div className="mb-4">
-        <Row>
-          <Col md={6} className="mb-3">
-            <Form.Group>
-              <Form.Label>Developer Type</Form.Label>
-              <Form.Select
-                value={searchType}
-                onChange={(e) => {
-                  setSearchType(e.target.value)
-                  handleSearch()
-                }}
-              >
-                {DEVELOPER_TYPES.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-          </Col>
-          <Col md={6} className="mb-3">
-            <Form.Group>
-              <Form.Label>Location</Form.Label>
-              <Form.Select
+        <Row className="align-items-center justify-content-end">
+          <Col md="auto">
+            <Form className="d-flex flex-column flex-md-row gap-2">
+              <div className="d-flex gap-2">
+                <Form.Select 
+                  className="w-auto flex-grow-0"
+                  value={searchType}
+                  onChange={(e) => {
+                    setSearchType(e.target.value)
+                    handleSearch()
+                  }}
+                  title="Developer type"
+                  aria-label="Select developer type"
+                  style={{ minWidth: '200px' }}
+                >
+                  {DEVELOPER_TYPES.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </Form.Select>
+                <span className="d-flex align-items-center">in</span>
+              </div>
+              <Form.Control
+                type="text"
+                placeholder="Enter country name"
+                className="w-auto flex-grow-0"
                 value={searchLocation}
-                onChange={(e) => {
-                  setSearchLocation(e.target.value)
-                  handleSearch()
-                }}
+                onChange={(e) => setSearchLocation(e.target.value)}
+                style={{ minWidth: '300px' }}
+              />
+              <Button 
+                variant="primary" 
+                className="px-4"
+                onClick={handleSearch}
               >
-                {LOCATIONS.map(location => (
-                  <option key={location} value={location}>{location}</option>
-                ))}
-              </Form.Select>
-            </Form.Group>
+                Search
+              </Button>
+            </Form>
           </Col>
         </Row>
       </div>
 
-      {/* Title */}
-      <h1 className="h4 mb-4">
-        {searchType}s in {searchLocation}
-      </h1>
-
+      {/* Results */}
       {error ? (
         <div className="alert alert-danger" role="alert">
           <h4 className="alert-heading">Error</h4>
@@ -148,9 +152,12 @@ function FindDevelopersContent() {
         </div>
       ) : developers.length > 0 ? (
         <>
+          <h2 className="h5 mb-4">
+            {searchType}s in {searchLocation}
+          </h2>
           <Row className="g-4">
             {developers.map(dev => (
-              <Col md={6} lg={4} key={dev.login.uuid}>
+              <Col xs={12} key={dev.login.uuid}>
                 <DeveloperCard dev={dev} onSelect={setSelectedDev} />
               </Col>
             ))}

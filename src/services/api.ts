@@ -26,26 +26,41 @@ export const getDevelopers = async (
   total: number;
 }> => {
   try {
-    console.log(`Fetching developers with params:`, { page, results, type, location });
+    console.log('API Call Params:', { page, results, type, location });
+    
     // Fetch more results to ensure we have enough after filtering
     const response = await api.get<RandomUserResponse>(`/?page=${page}&results=${results * 2}&nat=us&seed=platter${page}`);
+    console.log('Raw API Response:', response.data);
 
     // Enhance developers with skills and types
     let developers = enhanceDevelopers(response.data.results, `page${page}`);
+    console.log('After Enhancement:', developers.map(d => ({ 
+      name: `${d.name.first} ${d.name.last}`,
+      type: d.type,
+      skills: d.skills,
+      location: d.location.country
+    })));
     
     // Apply filters
     developers = applyFilters(developers, { type, skills: [] }, location);
+    console.log('After Filtering:', { 
+      remainingDevelopers: developers.length,
+      sampleDev: developers[0] ? {
+        name: `${developers[0].name.first} ${developers[0].name.last}`,
+        type: developers[0].type,
+        location: developers[0].location.country
+      } : null
+    });
     
     // Calculate total (use a multiplier to simulate more results)
     const total = Math.min(1000, developers.length * 10);
 
-    console.log(`Successfully fetched and filtered ${developers.length} developers`);
     return {
       developers: developers.slice(0, results),
       total
     };
   } catch (error) {
-    console.error('Error fetching developers:', error);
+    console.error('API Error:', error);
     throw error;
   }
 };
@@ -56,31 +71,33 @@ const applyFilters = (
   location?: string
 ): Developer[] => {
   let filtered = [...developers];
-  console.log('Applying filters:', { filters, location });
+  console.log('Starting Filter Process:', { 
+    totalDevelopers: developers.length,
+    filters,
+    location,
+    sampleTypes: developers.slice(0, 3).map(d => d.type)
+  });
 
   if (filters?.type) {
     const searchType = filters.type;
-    console.log('Filtering by type:', { searchType });
-    console.log('Available types:', filtered.map(dev => dev.type));
     filtered = filtered.filter(dev => dev.type === searchType);
-    console.log('After type filter:', filtered.length, 'developers');
-  }
-
-  if (filters?.skills?.length) {
-    console.log('Filtering by skills:', filters.skills);
-    filtered = filtered.filter(dev => 
-      filters.skills.every(skill => dev.skills.includes(skill))
-    );
-    console.log('After skills filter:', filtered.length, 'developers');
+    console.log('After Type Filter:', {
+      searchType,
+      remainingCount: filtered.length,
+      sampleTypes: filtered.slice(0, 3).map(d => d.type)
+    });
   }
 
   if (location) {
     const searchLocation = location.toLowerCase();
-    console.log('Filtering by location:', searchLocation);
     filtered = filtered.filter(dev => 
-      dev.location.country.toLowerCase().includes(searchLocation)
+      dev.location.country.toLowerCase() === searchLocation.toLowerCase()
     );
-    console.log('After location filter:', filtered.length, 'developers');
+    console.log('After Location Filter:', {
+      searchLocation,
+      remainingCount: filtered.length,
+      sampleLocations: filtered.slice(0, 3).map(d => d.location.country)
+    });
   }
 
   return filtered;
