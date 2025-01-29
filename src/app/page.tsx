@@ -68,7 +68,8 @@ function HomeContent() {
     const fetchInitialDevelopers = async () => {
       try {
         setLoading(true)
-        const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, { type: 'Full-Stack Developer', skills: [] }, 'United States')
+        const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, { type: searchType, skills: [] }, searchLocation)
+        console.log('Initial developers:', data)
         setDevelopers(data)
         setTotalDevelopers(total)
         setError('')
@@ -80,10 +81,8 @@ function HomeContent() {
       }
     }
 
-    if (!searchParams.get('type')) {
-      fetchInitialDevelopers()
-    }
-  }, [])
+    fetchInitialDevelopers()
+  }, []) // Empty dependency array to only run on mount
 
   // Fetch when filters change
   useEffect(() => {
@@ -109,14 +108,24 @@ function HomeContent() {
   }, [currentPage, filters, searchLocation, searchParams])
 
   // Handle search
-  const handleSearch = () => {
-    console.log('Handling search:', { searchType, searchLocation });
-    const params = new URLSearchParams()
-    params.set('type', searchType)
-    params.set('location', searchLocation)
-    console.log('Setting filters:', { type: searchType });
-    setFilters({ ...filters, type: searchType })
-    router.push(`/?${params.toString()}`)
+  const handleSearch = async () => {
+    try {
+      setLoading(true)
+      const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, { type: searchType, skills: [] }, searchLocation)
+      setDevelopers(data)
+      setTotalDevelopers(total)
+      setError('')
+      
+      const params = new URLSearchParams()
+      params.set('type', searchType)
+      params.set('location', searchLocation)
+      router.push(`/?${params.toString()}`)
+    } catch (error) {
+      console.error('Failed to fetch developers:', error)
+      setError('Failed to fetch developers. Please try again later.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

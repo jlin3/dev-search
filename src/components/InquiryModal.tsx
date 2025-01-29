@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
-import { BeatLoader } from 'react-spinners';
 import type { Developer } from '@/types';
 
 interface InquiryModalProps {
@@ -12,32 +11,51 @@ interface InquiryModalProps {
 
 export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
   const [message, setMessage] = useState('');
-  const [errors, setErrors] = useState('');
-  const [isSending, setIsSending] = useState(false);
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [company, setCompany] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim()) {
-      setErrors('Please enter a message');
-      return;
-    }
-    setIsSending(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    setIsSending(false);
+    // TODO: Handle form submission
     onClose();
   };
 
   return (
-    <Modal show onHide={onClose}>
+    <Modal show onHide={onClose} centered>
       <Modal.Header closeButton>
         <Modal.Title>Contact {dev.name.first} {dev.name.last}</Modal.Title>
       </Modal.Header>
       
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3">
+            <Form.Label>Your Name</Form.Label>
+            <Form.Control
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Your Email</Form.Label>
+            <Form.Control
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Company</Form.Label>
+            <Form.Control
+              type="text"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              required
+            />
+          </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Your Message</Form.Label>
             <Form.Control
@@ -49,23 +67,12 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
               required
             />
           </Form.Group>
-          
-          {errors && (
-            <div className="alert alert-danger mb-3">
-              {errors}
-            </div>
-          )}
-          
-          <div className="d-flex justify-content-end gap-2">
-            <Button variant="secondary" onClick={onClose} disabled={isSending}>
+          <div className="d-flex gap-2 justify-content-end">
+            <Button variant="secondary" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSending}>
-              {isSending ? (
-                <BeatLoader size={8} color="#ffffff" />
-              ) : (
-                'Send Message'
-              )}
+            <Button variant="primary" type="submit">
+              Send Message
             </Button>
           </div>
         </Form>

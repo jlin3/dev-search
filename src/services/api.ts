@@ -18,7 +18,7 @@ export const getDevelopers = async (
   page: number = 1, 
   limit: number = 8,
   filters?: Filters,
-  location?: string
+  location: string = 'United States'
 ): Promise<{
   developers: Developer[];
   total: number;
@@ -31,6 +31,14 @@ export const getDevelopers = async (
     let developers = enhanceDevelopers(res.data.results, `page${page}`);
     console.log('Enhanced developers:', developers);
 
+    developers = developers.map(dev => ({
+      ...dev,
+      location: {
+        ...dev.location,
+        country: 'United States'
+      }
+    }));
+
     developers = applyFilters(developers, filters, location);
     console.log('After filters:', developers);
 
@@ -39,7 +47,13 @@ export const getDevelopers = async (
       const additionalRes = await api.get<RandomUserResponse>(
         `/?page=${page + 1}&results=${limit * 2}&nat=us&seed=devsearch${page + 1}`
       );
-      const additionalDevs = enhanceDevelopers(additionalRes.data.results, `page${page + 1}`);
+      const additionalDevs = enhanceDevelopers(additionalRes.data.results, `page${page + 1}`).map(dev => ({
+        ...dev,
+        location: {
+          ...dev.location,
+          country: 'United States'
+        }
+      }));
       developers = [...developers, ...applyFilters(additionalDevs, filters, location)];
       console.log('Final developers:', developers);
     }
