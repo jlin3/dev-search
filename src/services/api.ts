@@ -60,23 +60,31 @@ const applyFilters = (
   location?: string
 ): Developer[] => {
   let filtered = [...developers];
+  console.log('Applying filters:', { filters, location });
 
   if (filters?.type) {
-    const searchType = filters.type.replace(' Developer In', '').replace(' In', '');
-    filtered = filtered.filter(dev => dev.type.toLowerCase() === searchType.toLowerCase());
+    const searchType = filters.type;
+    console.log('Filtering by type:', { searchType });
+    console.log('Available types:', filtered.map(dev => dev.type));
+    filtered = filtered.filter(dev => dev.type === searchType);
+    console.log('After type filter:', filtered.length, 'developers');
   }
 
   if (filters?.skills?.length) {
+    console.log('Filtering by skills:', filters.skills);
     filtered = filtered.filter(dev => 
       filters.skills.every(skill => dev.skills.includes(skill))
     );
+    console.log('After skills filter:', filtered.length, 'developers');
   }
 
   if (location) {
     const searchLocation = location.toLowerCase();
+    console.log('Filtering by location:', searchLocation);
     filtered = filtered.filter(dev => 
       dev.location.country.toLowerCase().includes(searchLocation)
     );
+    console.log('After location filter:', filtered.length, 'developers');
   }
 
   return filtered;
@@ -98,10 +106,10 @@ export const getDeveloperById = async (id: string): Promise<Developer> => {
 
 const getRandomType = (seed?: string): string => {
   const types = [
-    'Full-Stack',
-    'Frontend',
-    'Backend',
-    'Mobile',
+    'Full-Stack Developer',
+    'Frontend Developer',
+    'Backend Developer',
+    'Mobile Developer',
     'Data Scientist'
   ];
   
@@ -116,14 +124,14 @@ const getRandomType = (seed?: string): string => {
 
 const getRandomSkills = (type: string, seed?: string): string[] => {
   const skillsByType: { [key: string]: string[] } = {
-    'Full-stack': ['React', 'Node.js', 'Python', 'JavaScript', 'TypeScript', 'MongoDB'],
-    'Frontend': ['React', 'Vue', 'Angular', 'JavaScript', 'CSS', 'HTML'],
-    'Backend': ['Node.js', 'Python', 'Java', 'Go', 'PostgreSQL', 'Redis'],
-    'Mobile': ['iOS', 'Android', 'React Native', 'Swift', 'Kotlin', 'Flutter'],
+    'Full-Stack Developer': ['React', 'Node.js', 'Python', 'JavaScript', 'TypeScript', 'MongoDB'],
+    'Frontend Developer': ['React', 'Vue', 'Angular', 'JavaScript', 'CSS', 'HTML'],
+    'Backend Developer': ['Node.js', 'Python', 'Java', 'Go', 'PostgreSQL', 'Redis'],
+    'Mobile Developer': ['iOS', 'Android', 'React Native', 'Swift', 'Kotlin', 'Flutter'],
     'Data Scientist': ['Python', 'R', 'TensorFlow', 'PyTorch', 'SQL', 'Pandas']
   };
 
-  const availableSkills = skillsByType[type] || skillsByType['Full-stack'];
+  const availableSkills = skillsByType[type] || skillsByType['Full-Stack Developer'];
   
   if (seed) {
     const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);

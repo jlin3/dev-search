@@ -84,12 +84,13 @@ function HomeContent() {
 
   // Handle search
   const handleSearch = () => {
-    const type = searchType.replace(' Developer In', '').replace(' In', '')
+    console.log('Handling search:', { searchType, searchLocation });
     const params = new URLSearchParams()
-    params.set('type', type)
+    params.set('type', searchType)
     params.set('location', searchLocation)
+    console.log('Setting filters:', { type: searchType });
+    setFilters({ ...filters, type: searchType })
     router.push(`/?${params.toString()}`)
-    setFilters({ ...filters, type })
   }
 
   if (error) {
@@ -108,17 +109,22 @@ function HomeContent() {
         <Row className="align-items-center justify-content-end">
           <Col md="auto">
             <Form className="d-flex flex-column flex-md-row gap-2">
-              <Form.Select 
-                className="w-auto flex-grow-0"
-                value={searchType}
-                onChange={(e) => setSearchType(e.target.value)}
-                title="Developer type"
-                aria-label="Select developer type"
-              >
-                {DEVELOPER_TYPES.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </Form.Select>
+              <div className="d-flex gap-2">
+                <Form.Select 
+                  className="w-auto flex-grow-0"
+                  value={searchType}
+                  onChange={(e) => setSearchType(e.target.value)}
+                  title="Developer type"
+                  aria-label="Select developer type"
+                >
+                  <option value="Full-Stack Developer">Full-Stack Developer</option>
+                  <option value="Frontend Developer">Frontend Developer</option>
+                  <option value="Backend Developer">Backend Developer</option>
+                  <option value="Mobile Developer">Mobile Developer</option>
+                  <option value="Data Scientist">Data Scientist</option>
+                </Form.Select>
+                <span className="d-flex align-items-center">In</span>
+              </div>
               <Form.Control
                 type="text"
                 placeholder="Enter country name"
