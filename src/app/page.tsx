@@ -67,45 +67,47 @@ function HomeContent() {
   useEffect(() => {
     const fetchInitialDevelopers = async () => {
       try {
-        setLoading(true)
-        const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, { type: searchType, skills: [] }, searchLocation)
-        console.log('Initial developers:', data)
-        setDevelopers(data)
-        setTotalDevelopers(total)
-        setError('')
+        console.log('Starting initial fetch with:', { searchType, searchLocation });
+        setLoading(true);
+        const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, { type: 'Full-stack developer', skills: [] }, 'United States');
+        console.log('Initial fetch results:', { data, total });
+        setDevelopers(data);
+        setTotalDevelopers(total);
+        setError('');
       } catch (error) {
-        console.error('Failed to fetch developers:', error)
-        setError('Failed to fetch developers. Please try again later.')
+        console.error('Failed to fetch initial developers:', error);
+        setError('Failed to fetch developers. Please try again later.');
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchInitialDevelopers()
-  }, []) // Empty dependency array to only run on mount
+    fetchInitialDevelopers();
+  }, []); // Empty dependency array to only run on mount
 
   // Fetch when filters change
   useEffect(() => {
+    if (!searchParams.get('type')) return; // Don't run if no type in URL (initial load)
+
     const fetchDevelopers = async () => {
       try {
-        setLoading(true)
-        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE, filters, searchLocation)
-        console.log('Fetched developers:', data)
-        setDevelopers(data)
-        setTotalDevelopers(total)
-        setError('')
+        console.log('Fetching with filters:', { filters, searchLocation });
+        setLoading(true);
+        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE, filters, searchLocation);
+        console.log('Filter fetch results:', { data, total });
+        setDevelopers(data);
+        setTotalDevelopers(total);
+        setError('');
       } catch (error) {
-        console.error('Failed to fetch developers:', error)
-        setError('Failed to fetch developers. Please try again later.')
+        console.error('Failed to fetch developers:', error);
+        setError('Failed to fetch developers. Please try again later.');
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    if (searchParams.get('type')) {
-      fetchDevelopers()
-    }
-  }, [currentPage, filters, searchLocation, searchParams])
+    fetchDevelopers();
+  }, [currentPage, filters, searchLocation, searchParams]);
 
   // Handle search
   const handleSearch = async () => {

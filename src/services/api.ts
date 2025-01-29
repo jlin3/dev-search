@@ -9,62 +9,44 @@ interface RandomUserResponse {
   };
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://randomuser.me/api';
+
 const api = axios.create({
-  baseURL: 'https://randomuser.me/api',
+  baseURL: API_URL,
   timeout: 10000,
 });
 
 export const getDevelopers = async (
-  page: number = 1, 
-  limit: number = 8,
-  filters?: Filters,
+  page: number = 1,
+  results: number = 12,
+  type: string = 'Full-stack developer',
   location: string = 'United States'
 ): Promise<{
   developers: Developer[];
   total: number;
 }> => {
   try {
-    console.log('Fetching developers with params:', { page, limit, filters, location });
-    const res = await api.get<RandomUserResponse>(`/?page=${page}&results=${limit * 4}&nat=us&seed=devsearch${page}`);
-    console.log('API response:', res.data);
+    console.log(`Fetching developers with params:`, { page, results, type, location });
+    // Fetch more results to ensure we have enough after filtering
+    const response = await api.get<RandomUserResponse>(`/?page=${page}&results=${results * 2}&nat=us&seed=platter${page}`);
+
+    // Enhance developers with skills and types
+    let developers = enhanceDevelopers(response.data.results, `page${page}`);
     
-    let developers = enhanceDevelopers(res.data.results, `page${page}`);
-    console.log('Enhanced developers:', developers);
+    // Apply filters
+    developers = applyFilters(developers, { type, skills: [] }, location);
+    
+    // Calculate total (use a multiplier to simulate more results)
+    const total = Math.min(1000, developers.length * 10);
 
-    developers = developers.map(dev => ({
-      ...dev,
-      location: {
-        ...dev.location,
-        country: 'United States'
-      }
-    }));
-
-    developers = applyFilters(developers, filters, location);
-    console.log('After filters:', developers);
-
-    if (developers.length < limit) {
-      console.log('Fetching additional developers');
-      const additionalRes = await api.get<RandomUserResponse>(
-        `/?page=${page + 1}&results=${limit * 2}&nat=us&seed=devsearch${page + 1}`
-      );
-      const additionalDevs = enhanceDevelopers(additionalRes.data.results, `page${page + 1}`).map(dev => ({
-        ...dev,
-        location: {
-          ...dev.location,
-          country: 'United States'
-        }
-      }));
-      developers = [...developers, ...applyFilters(additionalDevs, filters, location)];
-      console.log('Final developers:', developers);
-    }
-
+    console.log(`Successfully fetched and filtered ${developers.length} developers`);
     return {
-      developers: developers.slice(0, limit),
-      total: Math.min(1000, developers.length * 10)
+      developers: developers.slice(0, results),
+      total
     };
   } catch (error) {
-    console.error('Failed to fetch developers:', error);
-    throw new Error('Failed to fetch developers. Please try again later.');
+    console.error('Error fetching developers:', error);
+    throw error;
   }
 };
 
