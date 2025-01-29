@@ -84,7 +84,7 @@ function HomeContent() {
 
   // Handle search
   const handleSearch = () => {
-    const type = searchType.replace(' in', '')
+    const type = searchType.replace(' in', '').replace(' developer', '')
     const params = new URLSearchParams()
     params.set('type', type)
     params.set('location', searchLocation)
@@ -113,6 +113,7 @@ function HomeContent() {
                 value={searchType}
                 onChange={(e) => setSearchType(e.target.value)}
                 title="Developer type"
+                aria-label="Select developer type"
               >
                 {DEVELOPER_TYPES.map(type => (
                   <option key={type} value={type}>{type}</option>

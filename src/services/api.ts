@@ -62,7 +62,8 @@ const applyFilters = (
   let filtered = [...developers];
 
   if (filters?.type) {
-    filtered = filtered.filter(dev => dev.type === filters.type);
+    const searchType = filters.type.replace(' developer', '');
+    filtered = filtered.filter(dev => dev.type.toLowerCase() === searchType.toLowerCase());
   }
 
   if (filters?.skills?.length) {
