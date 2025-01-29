@@ -69,7 +69,7 @@ function HomeContent() {
       try {
         console.log('Starting initial fetch with:', { searchType, searchLocation });
         setLoading(true);
-        const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, { type: 'Full-stack developer', skills: [] }, 'United States');
+        const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, 'Full-stack developer', 'United States');
         console.log('Initial fetch results:', { data, total });
         setDevelopers(data);
         setTotalDevelopers(total);
@@ -93,7 +93,7 @@ function HomeContent() {
       try {
         console.log('Fetching with filters:', { filters, searchLocation });
         setLoading(true);
-        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE, filters, searchLocation);
+        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE, filters.type, searchLocation);
         console.log('Filter fetch results:', { data, total });
         setDevelopers(data);
         setTotalDevelopers(total);
@@ -113,7 +113,7 @@ function HomeContent() {
   const handleSearch = async () => {
     try {
       setLoading(true)
-      const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, { type: searchType, skills: [] }, searchLocation)
+      const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, searchType, searchLocation)
       setDevelopers(data)
       setTotalDevelopers(total)
       setError('')
