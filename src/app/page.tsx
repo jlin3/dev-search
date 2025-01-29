@@ -16,11 +16,11 @@ import { getDevelopers } from '@/services/api'
 const ITEMS_PER_PAGE = 8
 
 const DEVELOPER_TYPES = [
-  'Full-stack developer in',
-  'Frontend developer in',
-  'Backend developer in',
-  'Mobile developer in',
-  'Data scientist in'
+  'Full-Stack Developer In',
+  'Frontend Developer In',
+  'Backend Developer In',
+  'Mobile Developer In',
+  'Data Scientist In'
 ]
 
 export default function Home() {
@@ -84,7 +84,7 @@ function HomeContent() {
 
   // Handle search
   const handleSearch = () => {
-    const type = searchType.replace(' in', '').replace(' developer', '')
+    const type = searchType.replace(' Developer In', '').replace(' In', '')
     const params = new URLSearchParams()
     params.set('type', type)
     params.set('location', searchLocation)
@@ -105,11 +105,11 @@ function HomeContent() {
     <Container fluid className="px-0">
       {/* Search Header */}
       <Container className="py-4">
-        <Row className="align-items-center">
-          <Col>
+        <Row className="align-items-center justify-content-end">
+          <Col md="auto">
             <Form className="d-flex flex-column flex-md-row gap-2">
               <Form.Select 
-                className="w-auto"
+                className="w-auto flex-grow-0"
                 value={searchType}
                 onChange={(e) => setSearchType(e.target.value)}
                 title="Developer type"
@@ -122,7 +122,7 @@ function HomeContent() {
               <Form.Control
                 type="text"
                 placeholder="Enter country name"
-                className="w-auto"
+                className="w-auto flex-grow-0"
                 value={searchLocation}
                 onChange={(e) => setSearchLocation(e.target.value)}
               />

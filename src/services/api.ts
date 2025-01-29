@@ -62,7 +62,7 @@ const applyFilters = (
   let filtered = [...developers];
 
   if (filters?.type) {
-    const searchType = filters.type.replace(' developer', '');
+    const searchType = filters.type.replace(' Developer In', '').replace(' In', '');
     filtered = filtered.filter(dev => dev.type.toLowerCase() === searchType.toLowerCase());
   }
 
@@ -98,7 +98,7 @@ export const getDeveloperById = async (id: string): Promise<Developer> => {
 
 const getRandomType = (seed?: string): string => {
   const types = [
-    'Full-stack',
+    'Full-Stack',
     'Frontend',
     'Backend',
     'Mobile',
