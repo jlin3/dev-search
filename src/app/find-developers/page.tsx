@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { Container, Row, Col, Form } from 'react-bootstrap'
 import { BeatLoader } from 'react-spinners'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -24,6 +24,23 @@ const DEVELOPER_TYPES = [
 const LOCATIONS = ['United States', 'Remote', 'Worldwide']
 
 export default function FindDevelopersPage() {
+  return (
+    <RootLayout>
+      <Header />
+      <Suspense fallback={
+        <Container>
+          <div className="text-center py-5">
+            <BeatLoader color="#007bff" />
+          </div>
+        </Container>
+      }>
+        <FindDevelopersContent />
+      </Suspense>
+    </RootLayout>
+  )
+}
+
+function FindDevelopersContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -68,98 +85,95 @@ export default function FindDevelopersPage() {
   }
 
   return (
-    <RootLayout>
-      <Header />
-      <Container>
-        {/* Search Controls */}
-        <div className="mb-4">
-          <Row>
-            <Col md={6} className="mb-3">
-              <Form.Group>
-                <Form.Label>Developer Type</Form.Label>
-                <Form.Select
-                  value={searchType}
-                  onChange={(e) => {
-                    setSearchType(e.target.value)
-                    handleSearch()
-                  }}
-                >
-                  {DEVELOPER_TYPES.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Col>
-            <Col md={6} className="mb-3">
-              <Form.Group>
-                <Form.Label>Location</Form.Label>
-                <Form.Select
-                  value={searchLocation}
-                  onChange={(e) => {
-                    setSearchLocation(e.target.value)
-                    handleSearch()
-                  }}
-                >
-                  {LOCATIONS.map(location => (
-                    <option key={location} value={location}>{location}</option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Col>
-          </Row>
+    <Container>
+      {/* Search Controls */}
+      <div className="mb-4">
+        <Row>
+          <Col md={6} className="mb-3">
+            <Form.Group>
+              <Form.Label>Developer Type</Form.Label>
+              <Form.Select
+                value={searchType}
+                onChange={(e) => {
+                  setSearchType(e.target.value)
+                  handleSearch()
+                }}
+              >
+                {DEVELOPER_TYPES.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+          <Col md={6} className="mb-3">
+            <Form.Group>
+              <Form.Label>Location</Form.Label>
+              <Form.Select
+                value={searchLocation}
+                onChange={(e) => {
+                  setSearchLocation(e.target.value)
+                  handleSearch()
+                }}
+              >
+                {LOCATIONS.map(location => (
+                  <option key={location} value={location}>{location}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+        </Row>
+      </div>
+
+      {/* Title */}
+      <h1 className="h4 mb-4">
+        {searchType}s in {searchLocation}
+      </h1>
+
+      {error ? (
+        <div className="alert alert-danger" role="alert">
+          <h4 className="alert-heading">Error</h4>
+          <p>{error}</p>
         </div>
+      ) : loading ? (
+        <div className="text-center py-5">
+          <BeatLoader color="#007bff" />
+        </div>
+      ) : developers.length > 0 ? (
+        <>
+          <Row className="g-4">
+            {developers.map(dev => (
+              <Col md={6} lg={4} key={dev.login.uuid}>
+                <DeveloperCard dev={dev} onSelect={setSelectedDev} />
+              </Col>
+            ))}
+          </Row>
 
-        {/* Title */}
-        <h1 className="h4 mb-4">
-          {searchType}s in {searchLocation}
-        </h1>
+          {totalDevelopers > ITEMS_PER_PAGE && (
+            <div className="mt-4">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(totalDevelopers / ITEMS_PER_PAGE)}
+                onPageChange={(page) => {
+                  const params = new URLSearchParams(searchParams.toString())
+                  params.set('page', page.toString())
+                  router.push(`/find-developers?${params.toString()}`)
+                }}
+              />
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="text-center py-5">
+          <p>No developers found matching your criteria.</p>
+        </div>
+      )}
 
-        {error ? (
-          <div className="alert alert-danger" role="alert">
-            <h4 className="alert-heading">Error</h4>
-            <p>{error}</p>
-          </div>
-        ) : loading ? (
-          <div className="text-center py-5">
-            <BeatLoader color="#007bff" />
-          </div>
-        ) : developers.length > 0 ? (
-          <>
-            <Row className="g-4">
-              {developers.map(dev => (
-                <Col md={6} lg={4} key={dev.login.uuid}>
-                  <DeveloperCard dev={dev} onSelect={setSelectedDev} />
-                </Col>
-              ))}
-            </Row>
-
-            {totalDevelopers > ITEMS_PER_PAGE && (
-              <div className="mt-4">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={Math.ceil(totalDevelopers / ITEMS_PER_PAGE)}
-                  onPageChange={(page) => {
-                    const params = new URLSearchParams(searchParams.toString())
-                    params.set('page', page.toString())
-                    router.push(`/find-developers?${params.toString()}`)
-                  }}
-                />
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-5">
-            <p>No developers found matching your criteria.</p>
-          </div>
-        )}
-
-        {selectedDev && (
-          <InquiryModal
-            dev={selectedDev}
-            onClose={() => setSelectedDev(null)}
-          />
-        )}
-      </Container>
-    </RootLayout>
+      {selectedDev && (
+        <InquiryModal
+          dev={selectedDev}
+          onClose={() => setSelectedDev(null)}
+        />
+      )}
+    </Container>
   )
 } 
