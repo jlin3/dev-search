@@ -37,7 +37,7 @@ export default function DeveloperCard({ dev, onSelect }: DeveloperCardProps) {
                   </Link>
                 </h5>
                 <div className="d-flex align-items-center gap-2 mb-2">
-                  <span className="text-muted small">{dev.type} Developer</span>
+                  <span className="text-muted small">{dev.type}</span>
                   <Badge bg="primary" pill>
                     ${dev.rate}/hr
                   </Badge>
@@ -53,6 +53,11 @@ export default function DeveloperCard({ dev, onSelect }: DeveloperCardProps) {
                     </Badge>
                   ))}
                 </div>
+                <p className="text-secondary small mb-2">
+                  {dev.name.first} has over {Math.floor(Math.random() * 10) + 5} years of experience as a {dev.type.toLowerCase()}, 
+                  specializing in {dev.skills.slice(0, 2).join(' and ')}. Their strengths include 
+                  problem-solving, clear communication, and delivering high-quality solutions.
+                </p>
               </div>
               <button 
                 className="btn btn-outline-primary btn-sm"

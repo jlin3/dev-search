@@ -25,7 +25,7 @@ export const getDevelopers = async (
 }> => {
   try {
     console.log('Fetching developers with params:', { page, limit, filters, location });
-    const res = await api.get<RandomUserResponse>(`/?page=${page}&results=${limit * 2}&seed=devsearch${page}`);
+    const res = await api.get<RandomUserResponse>(`/?page=${page}&results=${limit * 4}&nat=us&seed=devsearch${page}`);
     console.log('API response:', res.data);
     
     let developers = enhanceDevelopers(res.data.results, `page${page}`);
@@ -37,7 +37,7 @@ export const getDevelopers = async (
     if (developers.length < limit) {
       console.log('Fetching additional developers');
       const additionalRes = await api.get<RandomUserResponse>(
-        `/?page=${page + 1}&results=${limit}&seed=devsearch${page + 1}`
+        `/?page=${page + 1}&results=${limit * 2}&nat=us&seed=devsearch${page + 1}`
       );
       const additionalDevs = enhanceDevelopers(additionalRes.data.results, `page${page + 1}`);
       developers = [...developers, ...applyFilters(additionalDevs, filters, location)];
