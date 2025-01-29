@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react'
 import { Container, Row, Col, Form } from 'react-bootstrap'
 import { BeatLoader } from 'react-spinners'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import DeveloperCard from '@/components/Search/DeveloperCard'
 import InquiryModal from '@/components/InquiryModal'
 import Pagination from '@/components/Search/Pagination'
@@ -18,7 +19,7 @@ const DEVELOPER_TYPES = [
   'Frontend developer',
   'Backend developer',
   'Mobile developer',
-  'DevOps engineer',
+  'Data scientist'
 ]
 
 const LOCATIONS = ['United States', 'Remote', 'Worldwide']
@@ -49,10 +50,10 @@ function FindDevelopersContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedDev, setSelectedDev] = useState<Developer | null>(null)
-  const [searchType, setSearchType] = useState('Full-stack developer')
-  const [searchLocation, setSearchLocation] = useState('United States')
   
-  // Get page from URL or default to 1
+  // Get initial values from URL or defaults
+  const [searchType, setSearchType] = useState(searchParams.get('type') || 'Full-stack developer')
+  const [searchLocation, setSearchLocation] = useState(searchParams.get('location') || 'United States')
   const currentPage = Number(searchParams.get('page')) || 1
 
   useEffect(() => {
@@ -77,7 +78,7 @@ function FindDevelopersContent() {
   }, [currentPage, searchType, searchLocation])
 
   const handleSearch = () => {
-    const params = new URLSearchParams()
+    const params = new URLSearchParams(searchParams.toString())
     params.set('type', searchType)
     params.set('location', searchLocation)
     params.set('page', '1')
@@ -86,6 +87,13 @@ function FindDevelopersContent() {
 
   return (
     <Container>
+      {/* Breadcrumb */}
+      <div className="py-3">
+        <Link href="/" className="text-decoration-none">Home</Link>
+        {' > '}
+        <span>Find Developers</span>
+      </div>
+
       {/* Search Controls */}
       <div className="mb-4">
         <Row>
