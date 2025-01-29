@@ -120,11 +120,11 @@ export const getDeveloperById = async (id: string): Promise<Developer> => {
 
 const getRandomType = (seed?: string): string => {
   const types = [
-    'Full-Stack Developer',
-    'Frontend Developer',
-    'Backend Developer',
-    'Mobile Developer',
-    'Data Scientist'
+    'Full-stack developer',
+    'Frontend developer',
+    'Backend developer',
+    'Mobile developer',
+    'Data scientist'
   ];
   
   if (seed) {
@@ -138,14 +138,14 @@ const getRandomType = (seed?: string): string => {
 
 const getRandomSkills = (type: string, seed?: string): string[] => {
   const skillsByType: { [key: string]: string[] } = {
-    'Full-Stack Developer': ['React', 'Node.js', 'Python', 'JavaScript', 'TypeScript', 'MongoDB'],
-    'Frontend Developer': ['React', 'Vue', 'Angular', 'JavaScript', 'CSS', 'HTML'],
-    'Backend Developer': ['Node.js', 'Python', 'Java', 'Go', 'PostgreSQL', 'Redis'],
-    'Mobile Developer': ['iOS', 'Android', 'React Native', 'Swift', 'Kotlin', 'Flutter'],
-    'Data Scientist': ['Python', 'R', 'TensorFlow', 'PyTorch', 'SQL', 'Pandas']
+    'Full-stack developer': ['React', 'Node.js', 'Python', 'JavaScript', 'TypeScript', 'MongoDB'],
+    'Frontend developer': ['React', 'Vue', 'Angular', 'JavaScript', 'CSS', 'HTML'],
+    'Backend developer': ['Node.js', 'Python', 'Java', 'Go', 'PostgreSQL', 'Redis'],
+    'Mobile developer': ['iOS', 'Android', 'React Native', 'Swift', 'Kotlin', 'Flutter'],
+    'Data scientist': ['Python', 'R', 'TensorFlow', 'PyTorch', 'SQL', 'Pandas']
   };
 
-  const availableSkills = skillsByType[type] || skillsByType['Full-Stack Developer'];
+  const availableSkills = skillsByType[type] || skillsByType['Full-stack developer'];
   
   if (seed) {
     const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);

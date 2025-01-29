@@ -17,11 +17,11 @@ import { getDevelopers } from '@/services/api'
 const ITEMS_PER_PAGE = 8
 
 const DEVELOPER_TYPES = [
-  'Full-Stack Developer',
-  'Frontend Developer',
-  'Backend Developer',
-  'Mobile Developer',
-  'Data Scientist'
+  'Full-stack developer',
+  'Frontend developer',
+  'Backend developer',
+  'Mobile developer',
+  'Data scientist'
 ]
 
 export default function Home() {
@@ -48,7 +48,7 @@ function HomeContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showFilters, setShowFilters] = useState(false)
-  const [searchType, setSearchType] = useState('Full-Stack Developer')
+  const [searchType, setSearchType] = useState('Full-stack developer')
   const [searchLocation, setSearchLocation] = useState('United States')
   
   // Get page from URL or default to 1
@@ -56,7 +56,7 @@ function HomeContent() {
   
   // Get filters from URL
   const initialFilters = {
-    type: searchParams.get('type') || 'Full-Stack Developer',
+    type: searchParams.get('type') || 'Full-stack developer',
     skills: searchParams.get('skills')?.split(',').filter(Boolean) || []
   }
   
@@ -156,12 +156,13 @@ function HomeContent() {
                   onChange={(e) => setSearchType(e.target.value)}
                   title="Developer type"
                   aria-label="Select developer type"
+                  style={{ minWidth: '200px' }}
                 >
                   {DEVELOPER_TYPES.map(type => (
                     <option key={type} value={type}>{type}</option>
                   ))}
                 </Form.Select>
-                <span className="d-flex align-items-center">In</span>
+                <span className="d-flex align-items-center">in</span>
               </div>
               <Form.Control
                 type="text"
@@ -169,6 +170,7 @@ function HomeContent() {
                 className="w-auto flex-grow-0"
                 value={searchLocation}
                 onChange={(e) => setSearchLocation(e.target.value)}
+                style={{ minWidth: '300px' }}
               />
               <Button 
                 variant="primary" 
@@ -192,10 +194,10 @@ function HomeContent() {
           <Row>
             {/* Filters Sidebar */}
             <Col lg={3} className="mb-4 mb-lg-0">
-              <div className="card">
+              <div className="card shadow-sm">
                 <div className="card-body">
+                  <h6 className="text-uppercase mb-3 text-secondary fw-bold">Developer type:</h6>
                   <div className="d-flex justify-content-between align-items-center d-lg-none mb-3">
-                    <h5 className="mb-0">Filters</h5>
                     <Button 
                       variant="link" 
                       className="p-0 text-decoration-none"
@@ -219,6 +221,7 @@ function HomeContent() {
                 </div>
               ) : developers.length > 0 ? (
                 <>
+                  <h2 className="h5 mb-4">Top {searchType}s in {searchLocation}</h2>
                   <Row className="g-4">
                     {developers.map(dev => (
                       <Col xs={12} key={dev.login.uuid}>
