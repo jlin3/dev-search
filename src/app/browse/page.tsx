@@ -5,6 +5,7 @@ import { Container, Row, Col } from 'react-bootstrap'
 import { BeatLoader } from 'react-spinners'
 import Link from 'next/link'
 import DeveloperCard from '@/components/Search/DeveloperCard'
+import InquiryModal from '@/components/InquiryModal'
 import type { Developer } from '@/types'
 import RootLayout from '@/components/Layout/RootLayout'
 import Header from '@/components/Layout/Header'
@@ -65,6 +66,13 @@ export default function BrowsePage() {
               </Col>
             ))}
           </Row>
+        )}
+
+        {selectedDev && (
+          <InquiryModal
+            dev={selectedDev}
+            onClose={() => setSelectedDev(null)}
+          />
         )}
       </Container>
     </RootLayout>

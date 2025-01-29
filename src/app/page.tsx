@@ -17,11 +17,11 @@ import { getDevelopers } from '@/services/api'
 const ITEMS_PER_PAGE = 8
 
 const DEVELOPER_TYPES = [
-  'Full-Stack Developer In',
-  'Frontend Developer In',
-  'Backend Developer In',
-  'Mobile Developer In',
-  'Data Scientist In'
+  'Full-Stack Developer',
+  'Frontend Developer',
+  'Backend Developer',
+  'Mobile Developer',
+  'Data Scientist'
 ]
 
 export default function Home() {
@@ -123,11 +123,9 @@ function HomeContent() {
                   title="Developer type"
                   aria-label="Select developer type"
                 >
-                  <option value="Full-Stack Developer">Full-Stack Developer</option>
-                  <option value="Frontend Developer">Frontend Developer</option>
-                  <option value="Backend Developer">Backend Developer</option>
-                  <option value="Mobile Developer">Mobile Developer</option>
-                  <option value="Data Scientist">Data Scientist</option>
+                  {DEVELOPER_TYPES.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
                 </Form.Select>
                 <span className="d-flex align-items-center">In</span>
               </div>
