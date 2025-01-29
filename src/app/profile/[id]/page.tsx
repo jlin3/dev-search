@@ -1,30 +1,37 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import Image from 'next/image'
+import { Container } from 'react-bootstrap'
+import { BeatLoader } from 'react-spinners'
 import Link from 'next/link'
-import { Container, Row, Col, Button } from 'react-bootstrap'
-import type { Developer } from '@/types'
 import RootLayout from '@/components/Layout/RootLayout'
-import ContactModal from '@/components/ContactModal'
+import Header from '@/components/Layout/Header'
+import { getDeveloperById } from '@/services/api'
+import type { Developer } from '@/types'
+
+interface Experience {
+  title: string;
+  company: string;
+  period: string;
+  achievements: string[];
+  technologies: string;
+}
 
 export default function ProfilePage() {
   const params = useParams()
   const [developer, setDeveloper] = useState<Developer | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showContact, setShowContact] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const fetchDeveloper = async () => {
       try {
-        const res = await fetch(`https://randomuser.me/api/?seed=${params.id}`)
-        const data = await res.json()
-        const dev = {
-          ...data.results[0],
-          skills: ['Mobile iOS development', 'CTO management', 'Python development', 'C++ development', 'Parse.com', 'Swift', 'REST API architecture'],
-          type: 'Full Stack',
-          rate: Math.floor(Math.random() * 100) + 50,
+        setLoading(true)
+        const dev = await getDeveloperById(params.id as string)
+        // Add experience data
+        const enhancedDev = {
+          ...dev,
           experience: [
             {
               title: 'CEO',
@@ -53,42 +60,61 @@ export default function ProfilePage() {
             }
           ]
         }
-        setDeveloper(dev)
+        setDeveloper(enhancedDev)
       } catch (error) {
         console.error('Failed to fetch developer:', error)
+        setError('Failed to fetch developer profile. Please try again later.')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchDeveloper()
+    if (params.id) {
+      fetchDeveloper()
+    }
   }, [params.id])
 
-  if (!developer) {
+  if (loading) {
     return (
       <RootLayout>
-        <div className="text-center py-5">
-          <h2>Loading...</h2>
-        </div>
+        <Header />
+        <Container>
+          <div className="text-center py-5">
+            <BeatLoader color="#007bff" />
+          </div>
+        </Container>
+      </RootLayout>
+    )
+  }
+
+  if (error || !developer) {
+    return (
+      <RootLayout>
+        <Header />
+        <Container>
+          <div className="alert alert-danger" role="alert">
+            <h4 className="alert-heading">Error</h4>
+            <p>{error || 'Developer not found'}</p>
+          </div>
+        </Container>
       </RootLayout>
     )
   }
 
   return (
     <RootLayout>
+      <Header />
       <Container>
-        <nav className="profile-nav py-2">
-          <Link href="/">
-            Home
-          </Link>
-          {' / '}
-          <Link href="/find-developers">
-            Find Developers
-          </Link>
+        {/* Navigation */}
+        <nav className="py-3">
+          <Link href="/" className="text-decoration-none">Home</Link>
+          {' > '}
+          <Link href="/find-developers" className="text-decoration-none">Find Developers</Link>
         </nav>
 
-        <div className="profile-header my-4">
-          <h1 className="mb-1">{developer.name.first} {developer.name.last}</h1>
+        {/* Header */}
+        <div className="mb-4">
+          <h1 className="h3 mb-1">{developer.name.first} {developer.name.last}</h1>
           <p className="text-muted mb-0">
             iOS expert, {developer.type.toLowerCase()}
             {' · '}
@@ -96,17 +122,18 @@ export default function ProfilePage() {
           </p>
         </div>
 
-        <Row className="gx-5">
-          <Col md={8}>
+        <div className="row gx-5">
+          {/* Main Content */}
+          <div className="col-md-8">
+            {/* Bio */}
             <div className="d-flex mb-4">
-              <Image
+              <img
                 src={developer.picture.large}
                 alt={`${developer.name.first} ${developer.name.last}`}
-                width={120}
-                height={120}
                 className="rounded me-4"
+                style={{ width: '120px', height: '120px', objectFit: 'cover' }}
               />
-              <div className="profile-bio">
+              <div>
                 <p className="mb-0">
                   {developer.name.first} has over 15 years of experience as a full-stack developer, including creating a #1 iOS 
                   game in 2008 and scaling Yahoo! ad servers. {developer.name.first}'s strengths are adaptability, clear 
@@ -115,11 +142,12 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <section className="experience-section mb-5">
-              <h2>Experience</h2>
-              {developer.experience?.map((exp, index) => (
-                <div key={index} className="experience-item">
-                  <h3>
+            {/* Experience */}
+            <section className="mb-5">
+              <h2 className="h4 mb-4">Experience</h2>
+              {developer.experience?.map((exp: Experience, index: number) => (
+                <div key={index} className="mb-4">
+                  <h3 className="h5 mb-3">
                     {exp.title} at {exp.company} ({exp.period})
                   </h3>
                   <ul className="list-unstyled text-secondary">
@@ -133,41 +161,33 @@ export default function ProfilePage() {
                 </div>
               ))}
             </section>
-          </Col>
+          </div>
 
-          <Col md={4}>
-            <div className="skills-card">
+          {/* Sidebar */}
+          <div className="col-md-4">
+            <div className="card shadow-sm">
               <div className="card-body">
-                <Button 
-                  variant="primary" 
-                  className="w-100 mb-4 connect-button"
-                  onClick={() => setShowContact(true)}
+                <button 
+                  className="btn btn-primary w-100 mb-4"
+                  onClick={() => alert('Contact functionality coming soon!')}
                 >
                   Connect
-                </Button>
+                </button>
 
                 <h3 className="h5 mb-3">
                   {developer.name.first} can help you with:
                 </h3>
                 <ul className="list-unstyled">
                   {developer.skills.map((skill, index) => (
-                    <li key={index} className="text-secondary">
+                    <li key={index} className="text-secondary mb-2">
                       › {skill}
                     </li>
                   ))}
                 </ul>
               </div>
             </div>
-          </Col>
-        </Row>
-
-        {developer && (
-          <ContactModal
-            dev={developer}
-            show={showContact}
-            onClose={() => setShowContact(false)}
-          />
-        )}
+          </div>
+        </div>
       </Container>
     </RootLayout>
   )

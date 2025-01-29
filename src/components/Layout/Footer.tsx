@@ -3,14 +3,14 @@
 import React from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 const HIGHEST_DEMAND = [
-  'iOS Developer',
-  'Front-End Developer',
-  'UX Designer',
-  'UI Designer',
-  'Financial Modeling Consultants',
-  'Interim CFOs'
+  { title: 'iOS Developer', type: 'Mobile developer' },
+  { title: 'Front-End Developer', type: 'Frontend developer' },
+  { title: 'Full-Stack Developer', type: 'Full-stack developer' },
+  { title: 'Backend Developer', type: 'Backend developer' },
+  { title: 'Data Scientist', type: 'Data scientist' }
 ]
 
 const ABOUT_LINKS = [
@@ -19,7 +19,16 @@ const ABOUT_LINKS = [
   { title: 'Careers', href: '/careers' }
 ]
 
+const SOCIAL_LINKS = [
+  { icon: 'twitter', href: 'https://twitter.com' },
+  { icon: 'facebook', href: 'https://facebook.com' },
+  { icon: 'linkedin', href: 'https://linkedin.com' },
+  { icon: 'github', href: 'https://github.com' }
+]
+
 export default function Footer() {
+  const router = useRouter()
+
   return (
     <footer className="bg-light py-5 mt-auto">
       <Container>
@@ -27,13 +36,13 @@ export default function Footer() {
           <Col md={4}>
             <h5 className="mb-3">Highest Demand Talents</h5>
             <ul className="list-unstyled">
-              {HIGHEST_DEMAND.map(title => (
-                <li key={title} className="mb-2">
+              {HIGHEST_DEMAND.map(role => (
+                <li key={role.title} className="mb-2">
                   <Link 
-                    href={`/search?role=${encodeURIComponent(title)}`}
+                    href={`/find-developers?type=${encodeURIComponent(role.type)}`}
                     className="text-decoration-none text-muted"
                   >
-                    {title}
+                    {role.title}
                   </Link>
                 </li>
               ))}
@@ -55,20 +64,24 @@ export default function Footer() {
             </ul>
           </Col>
           <Col md={4} className="text-md-end">
-            <button className="btn btn-primary mb-4">Sign Up</button>
+            <button 
+              className="btn btn-primary mb-4"
+              onClick={() => router.push('/sign-up')}
+            >
+              Sign Up
+            </button>
             <div className="d-flex justify-content-md-end gap-3">
-              <Link href="#" className="text-muted">
-                <i className="bi bi-twitter"></i>
-              </Link>
-              <Link href="#" className="text-muted">
-                <i className="bi bi-facebook"></i>
-              </Link>
-              <Link href="#" className="text-muted">
-                <i className="bi bi-google"></i>
-              </Link>
-              <Link href="#" className="text-muted">
-                <i className="bi bi-linkedin"></i>
-              </Link>
+              {SOCIAL_LINKS.map(link => (
+                <a 
+                  key={link.icon}
+                  href={link.href}
+                  className="text-muted"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i className={`bi bi-${link.icon}`}></i>
+                </a>
+              ))}
             </div>
           </Col>
         </Row>

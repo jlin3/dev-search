@@ -19,45 +19,35 @@ const api = axios.create({
 export const getDevelopers = async (
   page: number = 1,
   results: number = 12,
-  type: string = 'Full-stack developer',
-  location: string = 'United States'
+  type?: string,
+  location?: string
 ): Promise<{
   developers: Developer[];
   total: number;
+  locations: string[];
 }> => {
   try {
-    console.log('API Call Params:', { page, results, type, location });
-    
     // Fetch more results to ensure we have enough after filtering
-    const response = await api.get<RandomUserResponse>(`/?page=${page}&results=${results * 2}&nat=us&seed=platter${page}`);
-    console.log('Raw API Response:', response.data);
+    const response = await api.get<RandomUserResponse>(`/?page=${page}&results=${results * 3}&seed=platter${page}`);
 
     // Enhance developers with skills and types
     let developers = enhanceDevelopers(response.data.results, `page${page}`);
-    console.log('After Enhancement:', developers.map(d => ({ 
-      name: `${d.name.first} ${d.name.last}`,
-      type: d.type,
-      skills: d.skills,
-      location: d.location.country
-    })));
     
-    // Apply filters
-    developers = applyFilters(developers, { type, skills: [] }, location);
-    console.log('After Filtering:', { 
-      remainingDevelopers: developers.length,
-      sampleDev: developers[0] ? {
-        name: `${developers[0].name.first} ${developers[0].name.last}`,
-        type: developers[0].type,
-        location: developers[0].location.country
-      } : null
-    });
+    // Get unique locations
+    const uniqueLocations = Array.from(new Set(developers.map(dev => dev.location.country))).sort();
+    
+    // Apply filters only if specified
+    if (type || location) {
+      developers = applyFilters(developers, type ? { type, skills: [] } : undefined, location);
+    }
     
     // Calculate total (use a multiplier to simulate more results)
     const total = Math.min(1000, developers.length * 10);
 
     return {
       developers: developers.slice(0, results),
-      total
+      total,
+      locations: uniqueLocations
     };
   } catch (error) {
     console.error('API Error:', error);
@@ -71,33 +61,16 @@ const applyFilters = (
   location?: string
 ): Developer[] => {
   let filtered = [...developers];
-  console.log('Starting Filter Process:', { 
-    totalDevelopers: developers.length,
-    filters,
-    location,
-    sampleTypes: developers.slice(0, 3).map(d => d.type)
-  });
 
   if (filters?.type) {
-    const searchType = filters.type;
-    filtered = filtered.filter(dev => dev.type === searchType);
-    console.log('After Type Filter:', {
-      searchType,
-      remainingCount: filtered.length,
-      sampleTypes: filtered.slice(0, 3).map(d => d.type)
-    });
+    filtered = filtered.filter(dev => dev.type === filters.type);
   }
 
   if (location) {
     const searchLocation = location.toLowerCase();
     filtered = filtered.filter(dev => 
-      dev.location.country.toLowerCase() === searchLocation.toLowerCase()
+      dev.location.country.toLowerCase().includes(searchLocation)
     );
-    console.log('After Location Filter:', {
-      searchLocation,
-      remainingCount: filtered.length,
-      sampleLocations: filtered.slice(0, 3).map(d => d.location.country)
-    });
   }
 
   return filtered;
@@ -127,8 +100,10 @@ const getRandomType = (seed?: string): string => {
   ];
   
   if (seed) {
-    const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const index = Math.floor((hash / types.length) % types.length);
+    // Use UUID to generate consistent type based on position
+    const uuidNumber = parseInt(seed.replace(/[^0-9]/g, '').slice(0, 2));
+    const index = uuidNumber % types.length;
+    console.log('Type generation:', { seed, uuidNumber, index, selectedType: types[index] });
     return types[index];
   }
   
@@ -147,10 +122,11 @@ const getRandomSkills = (type: string, seed?: string): string[] => {
   const availableSkills = skillsByType[type] || skillsByType['Full-stack developer'];
   
   if (seed) {
-    const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    // Use consistent hashing for skills based on UUID
+    const uuidNumber = parseInt(seed.replace(/[^0-9]/g, '').slice(-4));
     const shuffled = [...availableSkills].sort((a, b) => {
-      const hashA = (hash + a.charCodeAt(0)) % availableSkills.length;
-      const hashB = (hash + b.charCodeAt(0)) % availableSkills.length;
+      const hashA = (uuidNumber + a.charCodeAt(0)) % availableSkills.length;
+      const hashB = (uuidNumber + b.charCodeAt(0)) % availableSkills.length;
       return hashA - hashB;
     });
     return shuffled.slice(0, 3);

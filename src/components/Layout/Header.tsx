@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { Container, Navbar, Form } from 'react-bootstrap'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 const DEVELOPER_TYPES = [
   'Full-stack developer',
@@ -15,7 +15,19 @@ const DEVELOPER_TYPES = [
 
 export default function Header() {
   const pathname = usePathname()
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const isSearchPage = pathname === '/find-developers'
+
+  const handleSearch = (type?: string, location?: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (type) params.set('type', type)
+    else params.delete('type')
+    if (location) params.set('location', location)
+    else params.delete('location')
+    params.set('page', '1')
+    router.push(`/find-developers?${params.toString()}`)
+  }
 
   return (
     <header>
@@ -56,19 +68,23 @@ export default function Header() {
             
             {/* Search Controls */}
             <div className="d-flex pb-3 gap-2">
-              <div className="dropdown">
-                <button 
-                  className="btn btn-light dropdown-toggle text-start" 
-                  type="button"
-                  style={{ minWidth: '200px' }}
-                >
-                  Full-stack developer
-                </button>
-              </div>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="United States"
+              <Form.Select 
+                className="w-auto"
+                defaultValue={searchParams.get('type') || ''}
+                onChange={(e) => handleSearch(e.target.value, searchParams.get('location') || undefined)}
+                style={{ minWidth: '200px' }}
+              >
+                <option value="">All Types</option>
+                {DEVELOPER_TYPES.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </Form.Select>
+              <span className="text-white d-flex align-items-center">in</span>
+              <Form.Control
+                type="search"
+                placeholder="Enter location"
+                defaultValue={searchParams.get('location') || ''}
+                onChange={(e) => handleSearch(searchParams.get('type') || undefined, e.target.value)}
                 style={{ maxWidth: '300px' }}
               />
               <button className="btn btn-secondary px-4">
