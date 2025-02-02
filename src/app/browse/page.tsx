@@ -26,7 +26,8 @@ export default function BrowsePage() {
     const fetchDevelopers = async () => {
       try {
         setLoading(true)
-        const { developers: data, total } = await getDevelopers(currentPage)
+        // Pass undefined for type and location to get all developers
+        const { developers: data, total } = await getDevelopers(currentPage, undefined, undefined, [])
         setDevelopers(data)
         setTotalDevelopers(total)
         setError('')
@@ -69,6 +70,9 @@ export default function BrowsePage() {
           </div>
         ) : (
           <>
+            <div className="mb-4">
+              <p className="text-muted">Showing {developers.length} of {totalDevelopers} developers</p>
+            </div>
             <Row className="g-4">
               {developers.map(dev => (
                 <Col md={6} lg={4} key={dev.login.uuid}>
