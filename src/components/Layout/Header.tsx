@@ -6,7 +6,7 @@ import { Container, Navbar, Form } from 'react-bootstrap'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 const DEVELOPER_TYPES = [
-  'Full-stack developer',
+  'Full Stack developer',
   'Frontend developer',
   'Backend developer',
   'Mobile developer',

@@ -57,65 +57,84 @@ export default function ProfilePage() {
   }
 
   return (
-    <Container className="py-4">
-      {/* Breadcrumb */}
-      <div className="mb-4">
-        <Link href="/" className="text-decoration-none">Home</Link>
-        {' > '}
-        <Link href="/find-developers" className="text-decoration-none">Find Developers</Link>
+    <div className="bg-light min-vh-100">
+      {/* Header Section */}
+      <div className="bg-white border-bottom">
+        <Container className="py-4">
+          {/* Breadcrumb */}
+          <div className="d-flex align-items-center mb-4">
+            <Link href="/" className="text-decoration-none text-muted">
+              Home
+            </Link>
+            <span className="mx-2 text-muted">›</span>
+            <Link href="/find-developers" className="text-decoration-none text-muted">
+              Find Developers
+            </Link>
+          </div>
+
+          <Row className="align-items-center">
+            <Col md={8}>
+              <div className="d-flex align-items-center gap-4">
+                <Image
+                  src={developer.picture.large}
+                  alt={`${developer.name.first} ${developer.name.last}`}
+                  width={120}
+                  height={120}
+                  className="rounded-circle"
+                />
+                <div>
+                  <h1 className="h3 mb-2">{developer.name.first} {developer.name.last}</h1>
+                  <p className="text-muted mb-2">{developer.type}</p>
+                  <p className="mb-0">
+                    <i className="bi bi-geo-alt me-2"></i>
+                    {developer.location.city}, {developer.location.country}
+                  </p>
+                </div>
+              </div>
+            </Col>
+            <Col md={4} className="text-md-end mt-4 mt-md-0">
+              <div className="d-flex flex-column align-items-md-end">
+                <div className="mb-3">
+                  <span className="h4 text-success mb-0">${developer.rate}</span>
+                  <span className="text-muted">/hour</span>
+                </div>
+                <Button 
+                  variant="primary" 
+                  onClick={() => setShowInquiry(true)}
+                  className="px-4"
+                >
+                  Connect
+                </Button>
+              </div>
+            </Col>
+          </Row>
+        </Container>
       </div>
 
-      <Row>
-        <Col md={4} className="mb-4">
-          <div className="card border-0 shadow-sm">
-            <div className="card-body text-center">
-              <Image
-                src={developer.picture.large}
-                alt={`${developer.name.first} ${developer.name.last}`}
-                width={150}
-                height={150}
-                className="rounded-circle mb-4"
-              />
-              <h1 className="h4 mb-2">{developer.name.first} {developer.name.last}</h1>
-              <p className="text-muted mb-3">{developer.type}</p>
-              <p className="mb-3">
-                <i className="bi bi-geo-alt me-2"></i>
-                {developer.location.city}, {developer.location.country}
-              </p>
-              <p className="mb-4">
-                <strong>Rate:</strong> ${developer.rate}/hour
-              </p>
-              <Button 
-                variant="primary" 
-                onClick={() => setShowInquiry(true)}
-                className="w-100"
-              >
-                Connect
-              </Button>
-            </div>
-          </div>
-        </Col>
-
-        <Col md={8}>
-          <div className="card border-0 shadow-sm mb-4">
-            <div className="card-body">
+      <Container className="py-4">
+        <Row>
+          <Col md={8}>
+            {/* Summary Section */}
+            <div className="bg-white rounded-3 p-4 mb-4">
               <h2 className="h5 mb-3">About</h2>
               <p className="text-muted mb-0">{developer.summary}</p>
             </div>
-          </div>
 
-          <div className="card border-0 shadow-sm mb-4">
-            <div className="card-body">
-              <h2 className="h5 mb-4">Work Experience</h2>
+            {/* Experience Section */}
+            <div className="bg-white rounded-3 p-4">
+              <h2 className="h5 mb-4">Experience</h2>
               {developer.experience.map((exp: WorkExperience, index: number) => (
                 <div key={index} className="mb-4">
-                  <h3 className="h6 mb-1">{exp.title}</h3>
-                  <p className="text-muted small mb-2">
-                    {exp.company} • {exp.period}
-                  </p>
+                  <div className="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                      <h3 className="h6 mb-1">{exp.title}</h3>
+                      <p className="text-muted small mb-0">{exp.company}</p>
+                    </div>
+                    <span className="text-muted small">{exp.period}</span>
+                  </div>
                   <ul className="small mb-3 ps-3">
                     {exp.achievements.map((achievement, i) => (
-                      <li key={i}>{achievement}</li>
+                      <li key={i} className="mb-2">{achievement}</li>
                     ))}
                   </ul>
                   <p className="text-muted small mb-0">
@@ -125,25 +144,39 @@ export default function ProfilePage() {
                 </div>
               ))}
             </div>
-          </div>
+          </Col>
 
-          <div className="card border-0 shadow-sm">
-            <div className="card-body">
+          <Col md={4}>
+            {/* Skills Section */}
+            <div className="bg-white rounded-3 p-4 mb-4">
               <h2 className="h5 mb-3">Skills</h2>
               <div className="d-flex flex-wrap gap-2">
                 {developer.skills.map(skill => (
                   <span 
                     key={skill}
-                    className="badge bg-light text-dark py-2 px-3"
+                    className="badge bg-light text-dark py-2 px-3 rounded-pill"
                   >
                     {skill}
                   </span>
                 ))}
               </div>
             </div>
-          </div>
-        </Col>
-      </Row>
+
+            {/* Can Help With Section */}
+            <div className="bg-white rounded-3 p-4">
+              <h2 className="h5 mb-3">{developer.name.first} can help you with:</h2>
+              <ul className="list-unstyled mb-0">
+                {developer.skills.map(skill => (
+                  <li key={skill} className="mb-2">
+                    <i className="bi bi-check2 text-success me-2"></i>
+                    {skill} development
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Col>
+        </Row>
+      </Container>
 
       {showInquiry && (
         <InquiryModal
@@ -151,6 +184,6 @@ export default function ProfilePage() {
           onClose={() => setShowInquiry(false)}
         />
       )}
-    </Container>
+    </div>
   )
 } 
