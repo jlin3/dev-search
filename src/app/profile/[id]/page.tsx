@@ -65,75 +65,82 @@ export default function ProfilePage() {
         <Link href="/find-developers" className="text-decoration-none">Find Developers</Link>
       </div>
 
-      {/* Developer Header */}
-      <div className="mb-4">
-        <div className="d-flex align-items-center gap-4">
-          <Image
-            src={developer.picture.large}
-            alt={`${developer.name.first} ${developer.name.last}`}
-            width={120}
-            height={120}
-            className="rounded-circle"
-          />
-          <div>
-            <h1 className="h3 mb-2">{developer.name.first} {developer.name.last}</h1>
-            <p className="text-muted mb-2">
-              {developer.type} • {developer.location.city}, {developer.location.country}
-            </p>
-            <p className="mb-3">{developer.summary}</p>
-            <Button 
-              variant="outline-primary" 
-              onClick={() => setShowInquiry(true)}
-              className="px-4"
-            >
-              Connect
-            </Button>
-          </div>
-        </div>
-      </div>
-
       <Row>
-        <Col lg={8}>
-          {/* Experience Section */}
-          <div className="mb-5">
-            <h2 className="h5 mb-4">Experience</h2>
-            {developer.experience.map((exp: WorkExperience, index: number) => (
-              <div key={index} className="mb-4">
-                <h3 className="h6 mb-2">{exp.title}</h3>
-                <p className="text-muted small mb-2">
-                  {exp.company} • {exp.period}
-                </p>
-                <ul className="small mb-3">
-                  {exp.achievements.map((achievement, i) => (
-                    <li key={i}>{achievement}</li>
-                  ))}
-                </ul>
-                <p className="text-muted small mb-0">
-                  <strong>Technologies:</strong> {exp.technologies}
-                </p>
-              </div>
-            ))}
+        <Col md={4} className="mb-4">
+          <div className="card border-0 shadow-sm">
+            <div className="card-body text-center">
+              <Image
+                src={developer.picture.large}
+                alt={`${developer.name.first} ${developer.name.last}`}
+                width={150}
+                height={150}
+                className="rounded-circle mb-4"
+              />
+              <h1 className="h4 mb-2">{developer.name.first} {developer.name.last}</h1>
+              <p className="text-muted mb-3">{developer.type}</p>
+              <p className="mb-3">
+                <i className="bi bi-geo-alt me-2"></i>
+                {developer.location.city}, {developer.location.country}
+              </p>
+              <p className="mb-4">
+                <strong>Rate:</strong> ${developer.rate}/hour
+              </p>
+              <Button 
+                variant="primary" 
+                onClick={() => setShowInquiry(true)}
+                className="w-100"
+              >
+                Connect
+              </Button>
+            </div>
           </div>
         </Col>
 
-        <Col lg={4}>
-          {/* Skills Section */}
-          <div className="mb-4">
-            <h2 className="h5 mb-3">{developer.name.first} can help you with:</h2>
-            <ul className="list-unstyled">
-              {developer.skills.map(skill => (
-                <li key={skill} className="mb-2">
-                  <i className="bi bi-check2 me-2 text-primary"></i>
-                  {skill}
-                </li>
-              ))}
-            </ul>
+        <Col md={8}>
+          <div className="card border-0 shadow-sm mb-4">
+            <div className="card-body">
+              <h2 className="h5 mb-3">About</h2>
+              <p className="text-muted mb-0">{developer.summary}</p>
+            </div>
           </div>
 
-          {/* Rate Section */}
-          <div className="mb-4">
-            <h2 className="h5 mb-3">Rate</h2>
-            <p className="mb-0">${developer.rate}/hour</p>
+          <div className="card border-0 shadow-sm mb-4">
+            <div className="card-body">
+              <h2 className="h5 mb-4">Work Experience</h2>
+              {developer.experience.map((exp: WorkExperience, index: number) => (
+                <div key={index} className="mb-4">
+                  <h3 className="h6 mb-1">{exp.title}</h3>
+                  <p className="text-muted small mb-2">
+                    {exp.company} • {exp.period}
+                  </p>
+                  <ul className="small mb-3 ps-3">
+                    {exp.achievements.map((achievement, i) => (
+                      <li key={i}>{achievement}</li>
+                    ))}
+                  </ul>
+                  <p className="text-muted small mb-0">
+                    <strong>Technologies:</strong> {exp.technologies}
+                  </p>
+                  {index < developer.experience.length - 1 && <hr className="my-4" />}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="card border-0 shadow-sm">
+            <div className="card-body">
+              <h2 className="h5 mb-3">Skills</h2>
+              <div className="d-flex flex-wrap gap-2">
+                {developer.skills.map(skill => (
+                  <span 
+                    key={skill}
+                    className="badge bg-light text-dark py-2 px-3"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </Col>
       </Row>

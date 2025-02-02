@@ -32,22 +32,39 @@ export default function Header() {
   return (
     <header>
       {/* Main Navigation */}
-      <Navbar bg="light" className="py-2 border-bottom">
-        <Container className="justify-content-end">
-          <div className="d-flex gap-4">
-            <Link href="/find-developers" className="text-secondary text-decoration-none">
+      <Navbar bg="white" className="py-3 border-bottom shadow-sm">
+        <Container>
+          <Link href="/" className="navbar-brand fw-bold text-primary me-4">
+            DevSearch
+          </Link>
+          
+          <div className="d-flex align-items-center gap-4 flex-grow-1">
+            <Link 
+              href="/find-developers" 
+              className={`text-decoration-none ${pathname === '/find-developers' ? 'text-primary fw-semibold' : 'text-secondary'}`}
+            >
               Find Developers
             </Link>
-            <Link href="/resources" className="text-secondary text-decoration-none">
+            <Link 
+              href="/resources" 
+              className={`text-decoration-none ${pathname === '/resources' ? 'text-primary fw-semibold' : 'text-secondary'}`}
+            >
               Resources
             </Link>
-            <Link href="/sign-up" className="text-secondary text-decoration-none">
+          </div>
+
+          <div className="d-flex align-items-center gap-3">
+            <Link 
+              href="/sign-up" 
+              className={`text-decoration-none ${pathname === '/sign-up' ? 'text-primary fw-semibold' : 'text-secondary'}`}
+            >
               Sign Up
             </Link>
-            <Link href="/login" className="text-decoration-none">
-              <button className="btn btn-primary btn-sm">
-                Login
-              </button>
+            <Link 
+              href="/login" 
+              className="btn btn-primary px-4 py-2"
+            >
+              Login
             </Link>
           </div>
         </Container>
@@ -55,21 +72,21 @@ export default function Header() {
 
       {/* Search Section */}
       {isSearchPage && (
-        <div className="bg-primary">
+        <div className="bg-primary py-4">
           <Container>
             {/* Breadcrumb */}
-            <div className="d-flex py-2">
-              <Link href="/" className="text-white text-decoration-none">
+            <div className="d-flex mb-3">
+              <Link href="/" className="text-white text-decoration-none opacity-75">
                 Home
               </Link>
-              <span className="text-white mx-2">›</span>
+              <span className="text-white mx-2 opacity-75">›</span>
               <span className="text-white">Find Developers</span>
             </div>
             
             {/* Search Controls */}
-            <div className="d-flex pb-3 gap-2">
+            <div className="d-flex gap-3">
               <Form.Select 
-                className="w-auto"
+                className="w-auto flex-grow-0"
                 defaultValue={searchParams.get('type') || ''}
                 onChange={(e) => handleSearch(e.target.value, searchParams.get('location') || undefined)}
                 style={{ minWidth: '200px' }}
@@ -85,9 +102,10 @@ export default function Header() {
                 placeholder="Enter location"
                 defaultValue={searchParams.get('location') || ''}
                 onChange={(e) => handleSearch(searchParams.get('type') || undefined, e.target.value)}
-                style={{ maxWidth: '300px' }}
+                className="flex-grow-0"
+                style={{ width: '300px' }}
               />
-              <button className="btn btn-secondary px-4">
+              <button className="btn btn-light px-4">
                 Search
               </button>
             </div>

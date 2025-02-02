@@ -62,6 +62,18 @@ const LOCATIONS = [
   { city: 'Tokyo', country: 'Japan' }
 ];
 
+const FIRST_NAMES = [
+  'Michael', 'Sarah', 'David', 'Emma', 'James', 'Emily', 'Daniel', 'Sophia',
+  'Alexander', 'Olivia', 'William', 'Ava', 'John', 'Isabella', 'Robert', 'Mia',
+  'Thomas', 'Charlotte', 'Richard', 'Amelia'
+];
+
+const LAST_NAMES = [
+  'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis',
+  'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson',
+  'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin'
+];
+
 function generateWorkExperience(type: string, numYears: number): WorkExperience[] {
   const experience: WorkExperience[] = [];
   let currentYear = new Date().getFullYear();
@@ -96,9 +108,12 @@ function generateWorkExperience(type: string, numYears: number): WorkExperience[
   return experience;
 }
 
-function generateDeveloper(index: number): Developer {
+function generateDeveloper(seed?: string): Developer {
+  const firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
+  const lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
+  
   // Ensure even distribution of developer types
-  const typeIndex = index % DEVELOPER_TYPES.length;
+  const typeIndex = Math.floor(Math.random() * DEVELOPER_TYPES.length);
   const type = DEVELOPER_TYPES[typeIndex];
   
   // Get skills for this type
@@ -113,17 +128,17 @@ function generateDeveloper(index: number): Developer {
 
   return {
     login: {
-      uuid: `dev-${index}`
+      uuid: seed || crypto.randomUUID()
     },
     name: {
-      first: `Developer`,
-      last: `${index + 1}`
+      first: firstName,
+      last: lastName
     },
-    email: `developer${index + 1}@example.com`,
+    email: `developer${Math.floor(Math.random() * 1000) + 1}@example.com`,
     picture: {
-      large: `https://randomuser.me/api/portraits/men/${index % 70}.jpg`,
-      medium: `https://randomuser.me/api/portraits/med/men/${index % 70}.jpg`,
-      thumbnail: `https://randomuser.me/api/portraits/thumb/men/${index % 70}.jpg`
+      large: `https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 70)}.jpg`,
+      medium: `https://randomuser.me/api/portraits/med/men/${Math.floor(Math.random() * 70)}.jpg`,
+      thumbnail: `https://randomuser.me/api/portraits/thumb/men/${Math.floor(Math.random() * 70)}.jpg`
     },
     location,
     type,
@@ -134,7 +149,7 @@ function generateDeveloper(index: number): Developer {
   };
 }
 
-const developers: Developer[] = Array.from({ length: 1000 }, (_, i) => generateDeveloper(i));
+const developers: Developer[] = Array.from({ length: 1000 }, (_, i) => generateDeveloper());
 
 export async function getDevelopers(
   page: number = 1,
