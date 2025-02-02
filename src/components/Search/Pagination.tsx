@@ -1,92 +1,98 @@
 'use client'
 
-import React from 'react';
-import { Pagination as BSPagination } from 'react-bootstrap';
+import React from 'react'
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
-  maxVisiblePages?: number;
 }
 
-export default function Pagination({ 
-  currentPage, 
-  totalPages, 
-  onPageChange,
-  maxVisiblePages = 5 
-}: PaginationProps) {
-  const getVisiblePages = () => {
-    const halfVisible = Math.floor(maxVisiblePages / 2);
-    let startPage = Math.max(currentPage - halfVisible, 1);
-    let endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
-
-    // Adjust start if we're near the end
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(endPage - maxVisiblePages + 1, 1);
-    }
-
-    return Array.from(
-      { length: endPage - startPage + 1 },
-      (_, i) => startPage + i
-    );
-  };
-
+export default function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
   if (totalPages <= 1) return null;
 
-  const visiblePages = getVisiblePages();
-  const showStartEllipsis = visiblePages[0] > 1;
-  const showEndEllipsis = visiblePages[visiblePages.length - 1] < totalPages;
+  const renderPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    // Adjust start page if we're near the end
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    // First page
+    if (startPage > 1) {
+      pages.push(
+        <button
+          key="first"
+          onClick={() => onPageChange(1)}
+          className="btn btn-link text-decoration-none"
+        >
+          «
+        </button>
+      );
+    }
+
+    // Previous page
+    if (currentPage > 1) {
+      pages.push(
+        <button
+          key="prev"
+          onClick={() => onPageChange(currentPage - 1)}
+          className="btn btn-link text-decoration-none"
+        >
+          ‹
+        </button>
+      );
+    }
+
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => onPageChange(i)}
+          className={`btn ${currentPage === i ? 'btn-primary' : 'btn-link text-decoration-none'}`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Next page
+    if (currentPage < totalPages) {
+      pages.push(
+        <button
+          key="next"
+          onClick={() => onPageChange(currentPage + 1)}
+          className="btn btn-link text-decoration-none"
+        >
+          ›
+        </button>
+      );
+    }
+
+    // Last page
+    if (endPage < totalPages) {
+      pages.push(
+        <button
+          key="last"
+          onClick={() => onPageChange(totalPages)}
+          className="btn btn-link text-decoration-none"
+        >
+          »
+        </button>
+      );
+    }
+
+    return pages;
+  };
 
   return (
-    <BSPagination className="justify-content-center flex-wrap">
-      <BSPagination.First
-        onClick={() => onPageChange(1)}
-        disabled={currentPage === 1}
-      />
-      
-      <BSPagination.Prev
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-      />
-
-      {showStartEllipsis && (
-        <>
-          <BSPagination.Item onClick={() => onPageChange(1)}>
-            1
-          </BSPagination.Item>
-          <BSPagination.Ellipsis disabled />
-        </>
-      )}
-
-      {visiblePages.map(page => (
-        <BSPagination.Item
-          key={page}
-          active={page === currentPage}
-          onClick={() => onPageChange(page)}
-        >
-          {page}
-        </BSPagination.Item>
-      ))}
-
-      {showEndEllipsis && (
-        <>
-          <BSPagination.Ellipsis disabled />
-          <BSPagination.Item onClick={() => onPageChange(totalPages)}>
-            {totalPages}
-          </BSPagination.Item>
-        </>
-      )}
-
-      <BSPagination.Next
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      />
-      
-      <BSPagination.Last
-        onClick={() => onPageChange(totalPages)}
-        disabled={currentPage === totalPages}
-      />
-    </BSPagination>
+    <div className="d-flex justify-content-center gap-1">
+      {renderPageNumbers()}
+    </div>
   );
 } 

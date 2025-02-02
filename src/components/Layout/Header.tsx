@@ -32,7 +32,7 @@ export default function Header() {
   return (
     <header>
       {/* Main Navigation */}
-      <Navbar bg="white" className="py-2">
+      <Navbar bg="light" className="py-2 border-bottom">
         <Container className="justify-content-end">
           <div className="d-flex gap-4">
             <Link href="/find-developers" className="text-secondary text-decoration-none">

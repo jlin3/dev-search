@@ -66,39 +66,34 @@ export default function ProfilePage() {
       </div>
 
       {/* Developer Header */}
-      <div className="mb-5">
-        <h1 className="h2 mb-2">{developer.name.first} {developer.name.last}</h1>
-        <p className="text-muted mb-2">
-          {developer.type} • <Image src="/icons/location.svg" alt="Location" width={16} height={16} className="me-1" />
-          {developer.location.city}, {developer.location.country}
-        </p>
+      <div className="mb-4">
+        <div className="d-flex align-items-center gap-4">
+          <Image
+            src={developer.picture.large}
+            alt={`${developer.name.first} ${developer.name.last}`}
+            width={120}
+            height={120}
+            className="rounded-circle"
+          />
+          <div>
+            <h1 className="h3 mb-2">{developer.name.first} {developer.name.last}</h1>
+            <p className="text-muted mb-2">
+              {developer.type} • {developer.location.city}, {developer.location.country}
+            </p>
+            <p className="mb-3">{developer.summary}</p>
+            <Button 
+              variant="outline-primary" 
+              onClick={() => setShowInquiry(true)}
+              className="px-4"
+            >
+              Connect
+            </Button>
+          </div>
+        </div>
       </div>
 
       <Row>
         <Col lg={8}>
-          {/* About Section */}
-          <div className="mb-5">
-            <div className="d-flex align-items-center mb-4">
-              <Image
-                src={developer.picture.large}
-                alt={`${developer.name.first} ${developer.name.last}`}
-                width={100}
-                height={100}
-                className="rounded-circle me-4"
-              />
-              <div>
-                <p className="mb-3">{developer.summary}</p>
-                <Button 
-                  variant="outline-primary" 
-                  onClick={() => setShowInquiry(true)}
-                  className="px-4"
-                >
-                  Connect
-                </Button>
-              </div>
-            </div>
-          </div>
-
           {/* Experience Section */}
           <div className="mb-5">
             <h2 className="h5 mb-4">Experience</h2>
@@ -124,11 +119,11 @@ export default function ProfilePage() {
         <Col lg={4}>
           {/* Skills Section */}
           <div className="mb-4">
-            <h2 className="h5 mb-3">George can help you with:</h2>
+            <h2 className="h5 mb-3">{developer.name.first} can help you with:</h2>
             <ul className="list-unstyled">
               {developer.skills.map(skill => (
                 <li key={skill} className="mb-2">
-                  <Image src="/icons/check.svg" alt="Check" width={16} height={16} className="me-2" />
+                  <i className="bi bi-check2 me-2 text-primary"></i>
                   {skill}
                 </li>
               ))}
