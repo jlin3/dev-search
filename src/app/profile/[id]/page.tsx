@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Container, Row, Col, Card, Badge, Button } from 'react-bootstrap'
+import { Container, Row, Col, Button } from 'react-bootstrap'
 import { useParams } from 'next/navigation'
 import { getDeveloperById } from '@/services/api'
 import type { Developer, WorkExperience } from '@/types'
 import { BeatLoader } from 'react-spinners'
 import InquiryModal from '@/components/InquiryModal'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function ProfilePage() {
   const { id } = useParams()
@@ -56,103 +57,89 @@ export default function ProfilePage() {
   }
 
   return (
-    <Container className="py-5">
+    <Container className="py-4">
+      {/* Breadcrumb */}
+      <div className="mb-4">
+        <Link href="/" className="text-decoration-none">Home</Link>
+        {' > '}
+        <Link href="/find-developers" className="text-decoration-none">Find Developers</Link>
+      </div>
+
+      {/* Developer Header */}
+      <div className="mb-5">
+        <h1 className="h2 mb-2">{developer.name.first} {developer.name.last}</h1>
+        <p className="text-muted mb-2">
+          {developer.type} • <Image src="/icons/location.svg" alt="Location" width={16} height={16} className="me-1" />
+          {developer.location.city}, {developer.location.country}
+        </p>
+      </div>
+
       <Row>
-        <Col lg={4} className="mb-4">
-          <Card className="border-0 shadow-sm">
-            <Card.Body className="text-center">
-              <div className="mb-4">
-                <Image
-                  src={developer.picture.large}
-                  alt={`${developer.name.first} ${developer.name.last}`}
-                  width={150}
-                  height={150}
-                  className="rounded-circle"
-                />
-              </div>
-              
-              <h1 className="h4 mb-2">
-                {developer.name.first} {developer.name.last}
-              </h1>
-              
-              <p className="text-muted mb-4">{developer.type}</p>
-              
-              <div className="d-grid gap-2">
+        <Col lg={8}>
+          {/* About Section */}
+          <div className="mb-5">
+            <div className="d-flex align-items-center mb-4">
+              <Image
+                src={developer.picture.large}
+                alt={`${developer.name.first} ${developer.name.last}`}
+                width={100}
+                height={100}
+                className="rounded-circle me-4"
+              />
+              <div>
+                <p className="mb-3">{developer.summary}</p>
                 <Button 
-                  variant="primary" 
-                  size="lg"
+                  variant="outline-primary" 
                   onClick={() => setShowInquiry(true)}
+                  className="px-4"
                 >
                   Connect
                 </Button>
               </div>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="border-0 shadow-sm mt-4">
-            <Card.Body>
-              <h5 className="mb-3">Location</h5>
-              <p className="mb-0">
-                {developer.location.city}, {developer.location.country}
-              </p>
-            </Card.Body>
-          </Card>
-
-          <Card className="border-0 shadow-sm mt-4">
-            <Card.Body>
-              <h5 className="mb-3">Rate</h5>
-              <p className="mb-0">${developer.rate}/hour</p>
-            </Card.Body>
-          </Card>
+          {/* Experience Section */}
+          <div className="mb-5">
+            <h2 className="h5 mb-4">Experience</h2>
+            {developer.experience.map((exp: WorkExperience, index: number) => (
+              <div key={index} className="mb-4">
+                <h3 className="h6 mb-2">{exp.title}</h3>
+                <p className="text-muted small mb-2">
+                  {exp.company} • {exp.period}
+                </p>
+                <ul className="small mb-3">
+                  {exp.achievements.map((achievement, i) => (
+                    <li key={i}>{achievement}</li>
+                  ))}
+                </ul>
+                <p className="text-muted small mb-0">
+                  <strong>Technologies:</strong> {exp.technologies}
+                </p>
+              </div>
+            ))}
+          </div>
         </Col>
 
-        <Col lg={8}>
-          <Card className="border-0 shadow-sm mb-4">
-            <Card.Body>
-              <h5 className="mb-4">About</h5>
-              <p className="text-muted">{developer.summary}</p>
-            </Card.Body>
-          </Card>
-
-          <Card className="border-0 shadow-sm mb-4">
-            <Card.Body>
-              <h5 className="mb-4">Skills</h5>
-              <div>
-                {developer.skills.map(skill => (
-                  <Badge 
-                    key={skill} 
-                    bg="light" 
-                    text="dark"
-                    className="me-2 mb-2 py-2 px-3"
-                  >
-                    {skill}
-                  </Badge>
-                ))}
-              </div>
-            </Card.Body>
-          </Card>
-
-          <Card className="border-0 shadow-sm">
-            <Card.Body>
-              <h5 className="mb-4">Experience</h5>
-              {developer.experience.map((exp: WorkExperience, index: number) => (
-                <div key={index} className="mb-4">
-                  <h6 className="mb-2">{exp.title}</h6>
-                  <p className="text-muted mb-2">
-                    {exp.company} • {exp.period}
-                  </p>
-                  <ul className="mb-3">
-                    {exp.achievements.map((achievement, i) => (
-                      <li key={i}>{achievement}</li>
-                    ))}
-                  </ul>
-                  <p className="text-muted mb-0">
-                    <strong>Technologies:</strong> {exp.technologies}
-                  </p>
-                </div>
+        <Col lg={4}>
+          {/* Skills Section */}
+          <div className="mb-4">
+            <h2 className="h5 mb-3">George can help you with:</h2>
+            <ul className="list-unstyled">
+              {developer.skills.map(skill => (
+                <li key={skill} className="mb-2">
+                  <Image src="/icons/check.svg" alt="Check" width={16} height={16} className="me-2" />
+                  {skill}
+                </li>
               ))}
-            </Card.Body>
-          </Card>
+            </ul>
+          </div>
+
+          {/* Rate Section */}
+          <div className="mb-4">
+            <h2 className="h5 mb-3">Rate</h2>
+            <p className="mb-0">${developer.rate}/hour</p>
+          </div>
         </Col>
       </Row>
 

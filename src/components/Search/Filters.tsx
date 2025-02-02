@@ -54,7 +54,7 @@ export default function Filters({ type, selectedSkills, onTypeChange, onSkillsCh
   return (
     <div>
       <div className="mb-4">
-        <h6 className="text-uppercase mb-3 text-secondary fw-bold">Developer type</h6>
+        <h6 className="text-uppercase mb-3 text-secondary fw-bold">Filter by Type</h6>
         <Form.Group>
           <Form.Check
             type="radio"
