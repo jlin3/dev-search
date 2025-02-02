@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { Container, Row, Col, Button } from 'react-bootstrap'
 import { useParams } from 'next/navigation'
-import { getDeveloperById } from '@/services/api'
+import { getDeveloperData } from '@/app/actions'
 import type { Developer, WorkExperience } from '@/types'
 import { BeatLoader } from 'react-spinners'
 import InquiryModal from '@/components/InquiryModal'
@@ -12,7 +12,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 export default async function ProfilePage({ params }: { params: { id: string } }) {
-  const dev = await getDeveloperById(params.id)
+  const dev = await getDeveloperData(params.id)
   if (!dev) notFound()
 
   return (
@@ -47,11 +47,11 @@ export default async function ProfilePage({ params }: { params: { id: string } }
           </div>
 
           <h2 className="h4 mb-3">Experience</h2>
-          {dev.experience.map((exp, index) => (
+          {dev.experience.map((exp: Developer['experience'][0], index: number) => (
             <div key={index} className="mb-4">
               <h3 className="h5 mb-2">{exp.title} at {exp.company} ({exp.period})</h3>
               <ul className="list-unstyled">
-                {exp.achievements.map((achievement, i) => (
+                {exp.achievements.map((achievement: string, i: number) => (
                   <li key={i} className="mb-2">• {achievement}</li>
                 ))}
               </ul>
@@ -84,7 +84,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
             <div className="card-body">
               <h3 className="h5 mb-3">Can help you with:</h3>
               <ul className="list-unstyled mb-0">
-                {dev.skills.map((skill, index) => (
+                {dev.skills.map((skill: string, index: number) => (
                   <li key={index} className="mb-2">
                     <i className="bi bi-check2 text-primary me-2"></i>
                     {skill}
