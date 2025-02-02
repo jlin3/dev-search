@@ -34,20 +34,20 @@ export default function Header() {
       {/* Main Navigation */}
       <Navbar bg="white" className="py-3 border-bottom shadow-sm">
         <Container>
-          <Link href="/" className="navbar-brand fw-bold text-primary me-4">
+          <Link href="/" className="navbar-brand fw-bold text-primary me-4 fs-4">
             DevSearch
           </Link>
           
           <div className="d-flex align-items-center gap-4 flex-grow-1">
             <Link 
               href="/find-developers" 
-              className={`text-decoration-none ${pathname === '/find-developers' ? 'text-primary fw-semibold' : 'text-secondary'}`}
+              className={`text-decoration-none fs-5 ${pathname === '/find-developers' ? 'text-primary fw-semibold' : 'text-secondary'}`}
             >
               Find Developers
             </Link>
             <Link 
               href="/resources" 
-              className={`text-decoration-none ${pathname === '/resources' ? 'text-primary fw-semibold' : 'text-secondary'}`}
+              className={`text-decoration-none fs-5 ${pathname === '/resources' ? 'text-primary fw-semibold' : 'text-secondary'}`}
             >
               Resources
             </Link>
@@ -56,13 +56,13 @@ export default function Header() {
           <div className="d-flex align-items-center gap-3">
             <Link 
               href="/sign-up" 
-              className={`text-decoration-none ${pathname === '/sign-up' ? 'text-primary fw-semibold' : 'text-secondary'}`}
+              className={`text-decoration-none fs-5 ${pathname === '/sign-up' ? 'text-primary fw-semibold' : 'text-secondary'}`}
             >
               Sign Up
             </Link>
             <Link 
               href="/login" 
-              className="btn btn-primary px-4 py-2"
+              className="btn btn-primary px-4 py-2 fs-5"
             >
               Login
             </Link>

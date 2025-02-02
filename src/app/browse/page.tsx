@@ -6,6 +6,7 @@ import { BeatLoader } from 'react-spinners'
 import Link from 'next/link'
 import DeveloperCard from '@/components/Search/DeveloperCard'
 import InquiryModal from '@/components/InquiryModal'
+import Pagination from '@/components/Search/Pagination'
 import type { Developer } from '@/types'
 import RootLayout from '@/components/Layout/RootLayout'
 import Header from '@/components/Layout/Header'
@@ -15,6 +16,8 @@ const ITEMS_PER_PAGE = 12
 
 export default function BrowsePage() {
   const [developers, setDevelopers] = useState<Developer[]>([])
+  const [totalDevelopers, setTotalDevelopers] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedDev, setSelectedDev] = useState<Developer | null>(null)
@@ -23,8 +26,9 @@ export default function BrowsePage() {
     const fetchDevelopers = async () => {
       try {
         setLoading(true)
-        const { developers: data } = await getDevelopers(1)
+        const { developers: data, total } = await getDevelopers(currentPage)
         setDevelopers(data)
+        setTotalDevelopers(total)
         setError('')
       } catch (error) {
         console.error('Failed to fetch developers:', error)
@@ -35,7 +39,12 @@ export default function BrowsePage() {
     }
 
     fetchDevelopers()
-  }, [])
+  }, [currentPage])
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo(0, 0)
+  }
 
   return (
     <RootLayout>
@@ -59,13 +68,25 @@ export default function BrowsePage() {
             <BeatLoader color="#007bff" />
           </div>
         ) : (
-          <Row className="g-4">
-            {developers.map(dev => (
-              <Col md={6} lg={4} key={dev.login.uuid}>
-                <DeveloperCard dev={dev} onSelect={setSelectedDev} />
-              </Col>
-            ))}
-          </Row>
+          <>
+            <Row className="g-4">
+              {developers.map(dev => (
+                <Col md={6} lg={4} key={dev.login.uuid}>
+                  <DeveloperCard dev={dev} onSelect={setSelectedDev} />
+                </Col>
+              ))}
+            </Row>
+
+            {totalDevelopers > ITEMS_PER_PAGE && (
+              <div className="d-flex justify-content-center mt-4">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={Math.ceil(totalDevelopers / ITEMS_PER_PAGE)}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </>
         )}
 
         {selectedDev && (
