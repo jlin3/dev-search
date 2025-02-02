@@ -39,7 +39,6 @@ export const getDevelopers = async (
     
     // Apply filters if any filter criteria is specified
     if (type || location || (skills && skills.length > 0)) {
-      // Pass filters object including type and skills
       developers = applyFilters(developers, { type: type || '', skills: skills || [] }, location);
     }
     
@@ -70,12 +69,14 @@ const applyFilters = (
 
   if (location) {
     const searchLocation = location.toLowerCase();
-    filtered = filtered.filter(dev => 
-      dev.location.country.toLowerCase().includes(searchLocation)
-    );
+    filtered = filtered.filter(dev => {
+      const devCity = dev.location.city.toLowerCase();
+      const devCountry = dev.location.country.toLowerCase();
+      return devCity.includes(searchLocation) || devCountry.includes(searchLocation);
+    });
   }
 
-  // New: filter by skills if any are selected
+  // Filter by skills if any are selected
   if (filters?.skills && filters.skills.length > 0) {
     filtered = filtered.filter(dev => 
       filters.skills.every(skill => dev.skills.includes(skill))
@@ -101,7 +102,7 @@ export const getDeveloperById = async (id: string): Promise<Developer> => {
 
 const getRandomType = (seed?: string): string => {
   const types = [
-    'Full-stack developer',
+    'Full Stack developer',
     'Frontend developer',
     'Backend developer',
     'Mobile developer',
@@ -113,7 +114,6 @@ const getRandomType = (seed?: string): string => {
     const hex = seed.replace(/-/g, '');
     const intVal = parseInt(hex.substring(0, 8), 16);
     const index = intVal % types.length;
-    console.log('Type generation:', { seed, intVal, index, selectedType: types[index] });
     return types[index];
   }
   
@@ -122,14 +122,14 @@ const getRandomType = (seed?: string): string => {
 
 const getRandomSkills = (type: string, seed?: string): string[] => {
   const skillsByType: { [key: string]: string[] } = {
-    'Full-stack developer': ['React', 'Node.js', 'Python', 'JavaScript', 'TypeScript', 'MongoDB'],
+    'Full Stack developer': ['React', 'Node.js', 'Python', 'JavaScript', 'TypeScript', 'MongoDB'],
     'Frontend developer': ['React', 'Vue', 'Angular', 'JavaScript', 'CSS', 'HTML'],
     'Backend developer': ['Node.js', 'Python', 'Java', 'Go', 'PostgreSQL', 'Redis'],
     'Mobile developer': ['iOS', 'Android', 'React Native', 'Swift', 'Kotlin', 'Flutter'],
     'Data scientist': ['Python', 'R', 'TensorFlow', 'PyTorch', 'SQL', 'Pandas']
   };
 
-  const availableSkills = skillsByType[type] || skillsByType['Full-stack developer'];
+  const availableSkills = skillsByType[type] || skillsByType['Full Stack developer'];
   
   if (seed) {
     // Use consistent hashing for skills based on UUID

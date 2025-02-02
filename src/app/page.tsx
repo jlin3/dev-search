@@ -16,13 +16,14 @@ import { getDevelopers } from '@/services/api'
 
 const ITEMS_PER_PAGE = 8
 
+// Ensure consistent developer types across the application
 const DEVELOPER_TYPES = [
-  'Full-stack developer',
+  'Full Stack developer',
   'Frontend developer',
   'Backend developer',
   'Mobile developer',
   'Data scientist'
-]
+] as const;
 
 export default function Home() {
   return (
@@ -48,7 +49,7 @@ function HomeContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showFilters, setShowFilters] = useState(false)
-  const [searchLocation, setSearchLocation] = useState('United States')
+  const [searchLocation, setSearchLocation] = useState('')
   
   // Get page from URL or default to 1
   const currentPage = Number(searchParams.get('page')) || 1
@@ -62,71 +63,45 @@ function HomeContent() {
   const [filters, setFilters] = useState<FilterType>(initialFilters)
   const [selectedDev, setSelectedDev] = useState<Developer | null>(null)
 
-  // Initial fetch on mount
-  useEffect(() => {
-    const fetchInitialDevelopers = async () => {
-      try {
-        console.log('Starting initial fetch with:', { filters, searchLocation });
-        setLoading(true);
-        const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, filters.type, searchLocation, filters.skills);
-        console.log('Initial fetch results:', { data, total });
-        setDevelopers(data);
-        setTotalDevelopers(total);
-        setError('');
-      } catch (error) {
-        console.error('Failed to fetch initial developers:', error);
-        setError('Failed to fetch developers. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInitialDevelopers();
-  }, []); // Empty dependency array to only run on mount
-
-  // Fetch when filters change
-  useEffect(() => {
-    const fetchDevelopers = async () => {
-      try {
-        setLoading(true);
-        console.log('Fetching developers with filters:', filters, 'and location:', searchLocation, 'page:', currentPage);
-        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE, filters.type, searchLocation, filters.skills);
-        console.log('Fetch results:', { data, total });
-        setDevelopers(data);
-        setTotalDevelopers(total);
-        setError('');
-      } catch (error) {
-        console.error('Failed to fetch developers:', error);
-        setError('Failed to fetch developers. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDevelopers();
-  }, [currentPage, filters, searchLocation]);
-
-  // Handle search
-  const handleSearch = async () => {
+  // Combined fetch function
+  const fetchDevelopers = async (page: number, type: string, location: string, skills: string[]) => {
     try {
       setLoading(true);
-      const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, filters.type, searchLocation, filters.skills);
+      console.log('Fetching developers:', { page, type, location, skills });
+      const { developers: data, total } = await getDevelopers(
+        page,
+        ITEMS_PER_PAGE,
+        type || undefined,
+        location || undefined,
+        skills.length > 0 ? skills : undefined
+      );
+      console.log('Fetch results:', { data, total });
       setDevelopers(data);
       setTotalDevelopers(total);
       setError('');
-
-      const params = new URLSearchParams();
-      params.set('type', filters.type);
-      params.set('location', searchLocation);
-      if (filters.skills && filters.skills.length > 0) {
-        params.set('skills', filters.skills.join(','));
-      }
-      router.push(`/?${params.toString()}`);
     } catch (error) {
       console.error('Failed to fetch developers:', error);
       setError('Failed to fetch developers. Please try again later.');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Single useEffect for all data fetching
+  useEffect(() => {
+    fetchDevelopers(currentPage, filters.type, searchLocation, filters.skills);
+  }, [currentPage, filters.type, searchLocation, filters.skills]);
+
+  // Handle search
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (filters.type) params.set('type', filters.type);
+    if (searchLocation) params.set('location', searchLocation);
+    if (filters.skills.length > 0) {
+      params.set('skills', filters.skills.join(','));
+    }
+    params.set('page', '1');
+    router.push(`/?${params.toString()}`);
   };
 
   return (
@@ -149,7 +124,7 @@ function HomeContent() {
       <Container className="py-4">
         <Row className="align-items-center justify-content-end">
           <Col md="auto">
-            <Form className="d-flex flex-column flex-md-row gap-2">
+            <Form className="d-flex flex-column flex-md-row gap-2" onSubmit={(e) => { e.preventDefault(); handleSearch(); }}>
               <div className="d-flex gap-2">
                 <Form.Select 
                   className="w-auto flex-grow-0"
@@ -168,16 +143,16 @@ function HomeContent() {
               </div>
               <Form.Control
                 type="text"
-                placeholder="Enter country name"
+                placeholder="Enter city or country"
                 className="w-auto flex-grow-0"
                 value={searchLocation}
                 onChange={(e) => setSearchLocation(e.target.value)}
                 style={{ minWidth: '300px' }}
               />
               <Button 
+                type="submit"
                 variant="primary" 
                 className="px-4"
-                onClick={handleSearch}
               >
                 Search
               </Button>
@@ -223,7 +198,10 @@ function HomeContent() {
                 </div>
               ) : developers.length > 0 ? (
                 <>
-                  <h2 className="h5 mb-4">Top {filters.type}s in {searchLocation}</h2>
+                  <h2 className="h5 mb-4">
+                    {filters.type ? `Top ${filters.type}s` : 'All Developers'}
+                    {searchLocation && ` in ${searchLocation}`}
+                  </h2>
                   <Row className="g-4">
                     {developers.map(dev => (
                       <Col xs={12} key={dev.login.uuid}>
