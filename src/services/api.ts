@@ -109,10 +109,11 @@ const getRandomType = (seed?: string): string => {
   ];
   
   if (seed) {
-    // Use a simple hash function to sum char codes of the entire seed string
-    const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const index = Math.abs(hash) % types.length;
-    console.log('Type generation:', { seed, hash, index, selectedType: types[index] });
+    // Remove hyphens and take the first 8 characters of the hex string
+    const hex = seed.replace(/-/g, '');
+    const intVal = parseInt(hex.substring(0, 8), 16);
+    const index = intVal % types.length;
+    console.log('Type generation:', { seed, intVal, index, selectedType: types[index] });
     return types[index];
   }
   
