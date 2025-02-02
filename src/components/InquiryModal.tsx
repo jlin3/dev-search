@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Modal, Form, Button } from 'react-bootstrap';
+import { Modal, Form, Button, Row, Col } from 'react-bootstrap';
 import { BeatLoader } from 'react-spinners';
 import type { Developer } from '@/types';
 
@@ -11,12 +11,17 @@ interface InquiryModalProps {
 }
 
 export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
-  const [message, setMessage] = useState('');
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    message: ''
+  });
   const [sending, setSending] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.message.trim()) return;
 
     setSending(true);
     
@@ -24,13 +29,18 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
     await new Promise(resolve => setTimeout(resolve, 3000));
     
     // In a real app, you would make an API call here
-    console.log('Sending message to developer:', {
+    console.log('Sending connection request:', {
       developerId: dev.login.uuid,
-      message
+      ...formData
     });
     
     setSending(false);
-    setMessage('');
+    setFormData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      message: ''
+    });
     onClose();
   };
 
@@ -38,23 +48,68 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
     <Modal show onHide={onClose} centered>
       <Modal.Header closeButton>
         <Modal.Title>
-          Contact {dev.name.first} {dev.name.last}
+          Connect with {dev.name.first} {dev.name.last}
         </Modal.Title>
       </Modal.Header>
 
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
-          <Form.Group className="mb-3">
-            <Form.Label>Message</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={4}
-              value={message}
-              onChange={e => setMessage(e.target.value)}
-              placeholder="Write your message here..."
-              disabled={sending}
-            />
-          </Form.Group>
+          <div className="mb-4">
+            <Row>
+              <Col>
+                <Form.Group className="mb-3">
+                  <Form.Label>First Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={formData.firstName}
+                    onChange={e => setFormData({ ...formData, firstName: e.target.value })}
+                    placeholder="Your first name"
+                    disabled={sending}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group className="mb-3">
+                  <Form.Label>Last Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={formData.lastName}
+                    onChange={e => setFormData({ ...formData, lastName: e.target.value })}
+                    placeholder="Your last name"
+                    disabled={sending}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Form.Group className="mb-3">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                value={formData.email}
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                placeholder="Your email address"
+                disabled={sending}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Message</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={4}
+                value={formData.message}
+                onChange={e => setFormData({ ...formData, message: e.target.value })}
+                placeholder="Write your message here..."
+                disabled={sending}
+                required
+              />
+              <Form.Text className="text-muted">
+                Let {dev.name.first} know why you'd like to connect and what you're looking to collaborate on.
+              </Form.Text>
+            </Form.Group>
+          </div>
         </Modal.Body>
 
         <Modal.Footer>
@@ -64,7 +119,7 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
           <Button 
             variant="primary" 
             type="submit"
-            disabled={sending || !message.trim()}
+            disabled={sending || !formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.message.trim()}
           >
             {sending ? (
               <span className="d-flex align-items-center gap-2">
