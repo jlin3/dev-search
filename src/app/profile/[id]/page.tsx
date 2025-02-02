@@ -1,15 +1,13 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap'
+import React, { useEffect, useState } from 'react'
+import { Container, Row, Col, Card, Badge, Button } from 'react-bootstrap'
 import { useParams } from 'next/navigation'
-import { BeatLoader } from 'react-spinners'
-import Link from 'next/link'
-import RootLayout from '@/components/Layout/RootLayout'
-import Header from '@/components/Layout/Header'
 import { getDeveloperById } from '@/services/api'
 import type { Developer, WorkExperience } from '@/types'
+import { BeatLoader } from 'react-spinners'
 import InquiryModal from '@/components/InquiryModal'
+import Image from 'next/image'
 
 export default function ProfilePage() {
   const { id } = useParams()
@@ -22,139 +20,148 @@ export default function ProfilePage() {
     const fetchDeveloper = async () => {
       try {
         setLoading(true)
-        const dev = await getDeveloperById(id as string)
-        
-        if (!dev) {
-          setError('Developer not found')
-          return
-        }
-
-        setDeveloper(dev)
+        const data = await getDeveloperById(id as string)
+        setDeveloper(data)
+        setError('')
       } catch (error) {
         console.error('Failed to fetch developer:', error)
-        setError('Failed to fetch developer profile. Please try again later.')
+        setError('Failed to load developer profile. Please try again later.')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchDeveloper()
+    if (id) {
+      fetchDeveloper()
+    }
   }, [id])
 
   if (loading) {
     return (
-      <RootLayout>
-        <Header />
-        <Container className="py-5 text-center">
-          <BeatLoader />
-        </Container>
-      </RootLayout>
+      <Container className="py-5 text-center">
+        <BeatLoader color="#007bff" />
+      </Container>
     )
   }
 
   if (error || !developer) {
     return (
-      <RootLayout>
-        <Header />
-        <Container className="py-5">
-          <div className="alert alert-danger" role="alert">
-            <h4 className="alert-heading">Error</h4>
-            <p>{error || 'Developer not found'}</p>
-          </div>
-        </Container>
-      </RootLayout>
+      <Container className="py-5">
+        <div className="alert alert-danger" role="alert">
+          <h4 className="alert-heading">Error</h4>
+          <p>{error || 'Developer not found'}</p>
+        </div>
+      </Container>
     )
   }
 
-  // Calculate total years of experience from work history
-  const totalYears = developer.experience.reduce((total: number, job: WorkExperience) => {
-    const [startYear] = job.period.split(' - ')
-    const endYear = job.period.split(' - ')[1] || new Date().getFullYear().toString()
-    return total + (parseInt(endYear) - parseInt(startYear))
-  }, 0)
-
   return (
-    <RootLayout>
-      <Header />
-      <Container className="py-5">
-        <Row>
-          <Col md={4}>
-            <Card>
-              <Card.Img variant="top" src={developer.picture.large} alt={`${developer.name.first} ${developer.name.last}`} />
-              <Card.Body>
-                <Card.Title className="mb-3">
-                  {developer.name.first} {developer.name.last}
-                </Card.Title>
-                <Card.Subtitle className="mb-3 text-muted">
-                  {developer.type}
-                </Card.Subtitle>
-                <div className="mb-3">
-                  <strong>Location:</strong> {developer.location.city}, {developer.location.country}
-                </div>
-                <div className="mb-3">
-                  <strong>Experience:</strong> {totalYears}+ years
-                </div>
-                <div className="mb-3">
-                  <strong>Rate:</strong> ${developer.rate}/hour
-                </div>
+    <Container className="py-5">
+      <Row>
+        <Col lg={4} className="mb-4">
+          <Card className="border-0 shadow-sm">
+            <Card.Body className="text-center">
+              <div className="mb-4">
+                <Image
+                  src={developer.picture.large}
+                  alt={`${developer.name.first} ${developer.name.last}`}
+                  width={150}
+                  height={150}
+                  className="rounded-circle"
+                />
+              </div>
+              
+              <h1 className="h4 mb-2">
+                {developer.name.first} {developer.name.last}
+              </h1>
+              
+              <p className="text-muted mb-4">{developer.type}</p>
+              
+              <div className="d-grid gap-2">
                 <Button 
                   variant="primary" 
-                  className="w-100"
+                  size="lg"
                   onClick={() => setShowInquiry(true)}
                 >
                   Connect
                 </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col md={8}>
-            <Card className="mb-4">
-              <Card.Body>
-                <Card.Title>About</Card.Title>
-                <Card.Text>{developer.summary}</Card.Text>
-              </Card.Body>
-            </Card>
-            <Card className="mb-4">
-              <Card.Body>
-                <Card.Title>Work Experience</Card.Title>
-                {developer.experience.map((job: WorkExperience, index: number) => (
-                  <div key={index} className="mb-4">
-                    <h5>{job.title}</h5>
-                    <h6 className="text-muted">{job.company} • {job.period}</h6>
-                    <ul className="mt-2">
-                      {job.achievements.map((achievement: string, i: number) => (
-                        <li key={i}>{achievement}</li>
-                      ))}
-                    </ul>
-                    <div className="mt-2">
-                      <strong>Technologies:</strong> {job.technologies}
-                    </div>
-                  </div>
-                ))}
-              </Card.Body>
-            </Card>
-            <Card className="mb-4">
-              <Card.Body>
-                <Card.Title>Skills</Card.Title>
-                <div className="d-flex flex-wrap gap-2">
-                  {developer.skills.map((skill: string, index: number) => (
-                    <Badge key={index} bg="primary">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+              </div>
+            </Card.Body>
+          </Card>
 
-        {showInquiry && (
-          <InquiryModal
-            dev={developer}
-            onClose={() => setShowInquiry(false)}
-          />
-        )}
-      </Container>
-    </RootLayout>
+          <Card className="border-0 shadow-sm mt-4">
+            <Card.Body>
+              <h5 className="mb-3">Location</h5>
+              <p className="mb-0">
+                {developer.location.city}, {developer.location.country}
+              </p>
+            </Card.Body>
+          </Card>
+
+          <Card className="border-0 shadow-sm mt-4">
+            <Card.Body>
+              <h5 className="mb-3">Rate</h5>
+              <p className="mb-0">${developer.rate}/hour</p>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col lg={8}>
+          <Card className="border-0 shadow-sm mb-4">
+            <Card.Body>
+              <h5 className="mb-4">About</h5>
+              <p className="text-muted">{developer.summary}</p>
+            </Card.Body>
+          </Card>
+
+          <Card className="border-0 shadow-sm mb-4">
+            <Card.Body>
+              <h5 className="mb-4">Skills</h5>
+              <div>
+                {developer.skills.map(skill => (
+                  <Badge 
+                    key={skill} 
+                    bg="light" 
+                    text="dark"
+                    className="me-2 mb-2 py-2 px-3"
+                  >
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            </Card.Body>
+          </Card>
+
+          <Card className="border-0 shadow-sm">
+            <Card.Body>
+              <h5 className="mb-4">Experience</h5>
+              {developer.experience.map((exp: WorkExperience, index: number) => (
+                <div key={index} className="mb-4">
+                  <h6 className="mb-2">{exp.title}</h6>
+                  <p className="text-muted mb-2">
+                    {exp.company} • {exp.period}
+                  </p>
+                  <ul className="mb-3">
+                    {exp.achievements.map((achievement, i) => (
+                      <li key={i}>{achievement}</li>
+                    ))}
+                  </ul>
+                  <p className="text-muted mb-0">
+                    <strong>Technologies:</strong> {exp.technologies}
+                  </p>
+                </div>
+              ))}
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      {showInquiry && (
+        <InquiryModal
+          dev={developer}
+          onClose={() => setShowInquiry(false)}
+        />
+      )}
+    </Container>
   )
 } 
