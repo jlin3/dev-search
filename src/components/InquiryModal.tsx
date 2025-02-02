@@ -18,6 +18,7 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
     message: ''
   });
   const [sending, setSending] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +28,7 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000));
     setSending(false);
-    onClose();
+    setSuccess(true);
   };
 
   return (
@@ -36,71 +37,83 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
         <Modal.Title>Contact {dev.name.first} {dev.name.last}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={handleSubmit}>
-          <Row className="mb-3">
-            <Col>
-              <Form.Control
-                type="text"
-                placeholder="Your first name"
-                value={formData.firstName}
-                onChange={e => setFormData({ ...formData, firstName: e.target.value })}
-                disabled={sending}
-              />
-            </Col>
-            <Col>
-              <Form.Control
-                type="text"
-                placeholder="Your last name"
-                value={formData.lastName}
-                onChange={e => setFormData({ ...formData, lastName: e.target.value })}
-                disabled={sending}
-              />
-            </Col>
-          </Row>
-          <Form.Control
-            type="email"
-            placeholder="Email address"
-            className="mb-3"
-            value={formData.email}
-            onChange={e => setFormData({ ...formData, email: e.target.value })}
-            disabled={sending}
-          />
-          <Form.Control
-            as="textarea"
-            rows={4}
-            placeholder="Would you like to leave a message"
-            className="mb-3"
-            value={formData.message}
-            onChange={e => setFormData({ ...formData, message: e.target.value })}
-            disabled={sending}
-          />
-          <div className="mb-3">
-            {/* reCAPTCHA placeholder - would be replaced with actual reCAPTCHA component */}
-            <div className="border rounded p-3 bg-light">
-              <div className="d-flex align-items-center">
-                <Form.Check
-                  type="checkbox"
-                  id="recaptcha-check"
-                  label="I'm not a robot"
+        {success ? (
+          <div className="text-center py-4">
+            <h4 className="text-success mb-3">Message Sent Successfully!</h4>
+            <p className="mb-4">Thank you for reaching out. {dev.name.first} will get back to you soon.</p>
+            <Button variant="primary" onClick={onClose}>Close</Button>
+          </div>
+        ) : (
+          <Form onSubmit={handleSubmit}>
+            <Row className="mb-3">
+              <Col>
+                <Form.Control
+                  type="text"
+                  placeholder="Your first name"
+                  value={formData.firstName}
+                  onChange={e => setFormData({ ...formData, firstName: e.target.value })}
                   disabled={sending}
                 />
-                <img src="/recaptcha.png" alt="reCAPTCHA" className="ms-auto" style={{ width: '32px' }} />
+              </Col>
+              <Col>
+                <Form.Control
+                  type="text"
+                  placeholder="Your last name"
+                  value={formData.lastName}
+                  onChange={e => setFormData({ ...formData, lastName: e.target.value })}
+                  disabled={sending}
+                />
+              </Col>
+            </Row>
+            <Form.Control
+              type="email"
+              placeholder="Email address"
+              className="mb-3"
+              value={formData.email}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
+              disabled={sending}
+            />
+            <Form.Control
+              as="textarea"
+              rows={4}
+              placeholder="Would you like to leave a message"
+              className="mb-3"
+              value={formData.message}
+              onChange={e => setFormData({ ...formData, message: e.target.value })}
+              disabled={sending}
+            />
+            <div className="mb-3">
+              {/* reCAPTCHA placeholder - would be replaced with actual reCAPTCHA component */}
+              <div className="border rounded p-3 bg-light">
+                <div className="d-flex align-items-center">
+                  <Form.Check
+                    type="checkbox"
+                    id="recaptcha-check"
+                    label="I'm not a robot"
+                    disabled={sending}
+                  />
+                  <div className="ms-auto">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm0-4h-2V7h2v8z" fill="#4285f4"/>
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="d-flex justify-content-end gap-2">
-            <Button variant="outline-secondary" onClick={onClose} disabled={sending}>
-              Cancel
-            </Button>
-            <Button 
-              variant="primary" 
-              type="submit"
-              disabled={sending || !formData.firstName || !formData.lastName || !formData.email || !formData.message}
-            >
-              {sending ? <BeatLoader size={8} color="#ffffff" /> : 'Contact'}
-            </Button>
-          </div>
-        </Form>
+            <div className="d-flex justify-content-end gap-2">
+              <Button variant="outline-secondary" onClick={onClose} disabled={sending}>
+                Cancel
+              </Button>
+              <Button 
+                variant="primary" 
+                type="submit"
+                disabled={sending || !formData.firstName || !formData.lastName || !formData.email || !formData.message}
+              >
+                {sending ? <BeatLoader size={8} color="#ffffff" /> : 'Contact'}
+              </Button>
+            </div>
+          </Form>
+        )}
       </Modal.Body>
     </Modal>
   );

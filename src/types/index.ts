@@ -1,26 +1,30 @@
+export interface Name {
+  first: string;
+  last: string;
+}
+
+export interface Location {
+  city: string;
+  country: string;
+}
+
+export interface Experience {
+  role: string;
+  company: string;
+  period: string;
+  achievements: string[];
+  technologies: string[] | string;
+}
+
 export interface Developer {
-  login: {
-    uuid: string;
-  };
-  name: {
-    first: string;
-    last: string;
-  };
-  email: string;
-  picture: {
-    large: string;
-    medium: string;
-    thumbnail: string;
-  };
-  location: {
-    city: string;
-    country: string;
-  };
-  type: DeveloperType;
-  rate: number;
+  id: string;
+  name: Name;
+  type: string;
+  avatar: string;
+  bio: string;
+  location: Location;
+  experience: Experience[];
   skills: string[];
-  experience: WorkExperience[];
-  summary: string;
 }
 
 export interface WorkExperience {
