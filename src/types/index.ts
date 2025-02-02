@@ -19,13 +19,16 @@ export interface Developer {
   skills: string[];
   type: string;
   rate: number;
-  experience?: Array<{
-    title: string;
-    company: string;
-    period: string;
-    achievements: string[];
-    technologies: string;
-  }>;
+  experience: WorkExperience[];
+  summary: string;
+}
+
+export interface WorkExperience {
+  title: string;
+  company: string;
+  period: string;
+  achievements: string[];
+  technologies: string;
 }
 
 export type DeveloperType = 'Full Stack' | 'Frontend' | 'Backend' | 'Mobile' | 'Data Scientist';

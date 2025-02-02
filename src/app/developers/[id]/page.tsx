@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
 import { useParams } from 'next/navigation';
 import { getDeveloperById } from '@/services/api';
-import type { Developer } from '@/types';
+import type { Developer, WorkExperience } from '@/types';
 import InquiryModal from '@/components/InquiryModal';
 import { BeatLoader } from 'react-spinners';
 
@@ -45,6 +45,13 @@ export default function DeveloperProfile() {
     );
   }
 
+  // Calculate total years of experience from work history
+  const totalYears = developer.experience.reduce((total: number, job: WorkExperience) => {
+    const [startYear] = job.period.split(' - ');
+    const endYear = job.period.split(' - ')[1] || new Date().getFullYear().toString();
+    return total + (parseInt(endYear) - parseInt(startYear));
+  }, 0);
+
   return (
     <Container className="py-5">
       <Row>
@@ -62,7 +69,7 @@ export default function DeveloperProfile() {
                 <strong>Location:</strong> {developer.location.city}, {developer.location.country}
               </div>
               <div className="mb-3">
-                <strong>Experience:</strong> {developer.experience} years
+                <strong>Experience:</strong> {totalYears}+ years
               </div>
               <div className="mb-3">
                 <strong>Rate:</strong> ${developer.rate}/hour
@@ -86,9 +93,28 @@ export default function DeveloperProfile() {
           </Card>
           <Card className="mb-4">
             <Card.Body>
+              <Card.Title>Work Experience</Card.Title>
+              {developer.experience.map((job: WorkExperience, index: number) => (
+                <div key={index} className="mb-4">
+                  <h5>{job.title}</h5>
+                  <h6 className="text-muted">{job.company} • {job.period}</h6>
+                  <ul className="mt-2">
+                    {job.achievements.map((achievement: string, i: number) => (
+                      <li key={i}>{achievement}</li>
+                    ))}
+                  </ul>
+                  <div className="mt-2">
+                    <strong>Technologies:</strong> {job.technologies}
+                  </div>
+                </div>
+              ))}
+            </Card.Body>
+          </Card>
+          <Card className="mb-4">
+            <Card.Body>
               <Card.Title>Skills</Card.Title>
               <div className="d-flex flex-wrap gap-2">
-                {developer.skills.map((skill, index) => (
+                {developer.skills.map((skill: string, index: number) => (
                   <Badge key={index} bg="primary">
                     {skill}
                   </Badge>
