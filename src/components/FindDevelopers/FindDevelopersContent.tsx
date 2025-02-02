@@ -1,24 +1,17 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Container, Row, Col, Form } from 'react-bootstrap'
+import { Container, Row, Col } from 'react-bootstrap'
 import { BeatLoader } from 'react-spinners'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
 import DeveloperCard from '@/components/Search/DeveloperCard'
 import InquiryModal from '@/components/InquiryModal'
 import Pagination from '@/components/Search/Pagination'
+import FilterSidebar from '@/components/Search/FilterSidebar'
 import type { Developer } from '@/types'
 import { getDevelopers } from '@/services/api'
 
 const ITEMS_PER_PAGE = 12
-const DEVELOPER_TYPES = [
-  'Full-stack developer',
-  'Frontend developer',
-  'Backend developer',
-  'Mobile developer',
-  'Data scientist'
-]
 
 export default function FindDevelopersContent() {
   const router = useRouter()
@@ -32,6 +25,9 @@ export default function FindDevelopersContent() {
   
   // Get initial values from URL or defaults
   const [searchType, setSearchType] = useState(searchParams.get('type') || '')
+  const [selectedSkills, setSelectedSkills] = useState<string[]>(
+    searchParams.get('skills')?.split(',').filter(Boolean) || []
+  )
   const currentPage = Number(searchParams.get('page')) || 1
 
   useEffect(() => {
@@ -41,8 +37,9 @@ export default function FindDevelopersContent() {
         const { developers: data, total } = await getDevelopers(
           currentPage, 
           ITEMS_PER_PAGE, 
-          searchType || undefined, 
-          searchParams.get('location') || undefined
+          searchType || undefined,
+          searchParams.get('location') || undefined,
+          selectedSkills.length > 0 ? selectedSkills : undefined
         )
         setDevelopers(data)
         setTotalDevelopers(total)
@@ -56,21 +53,45 @@ export default function FindDevelopersContent() {
     }
 
     fetchDevelopers()
-  }, [currentPage, searchType, searchParams])
+  }, [currentPage, searchType, selectedSkills, searchParams])
 
-  const handleSearch = () => {
-    const params = new URLSearchParams()
-    if (searchType) params.set('type', searchType)
+  const updateSearchParams = (updates: Record<string, string | string[] | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null) {
+        params.delete(key)
+      } else if (Array.isArray(value)) {
+        if (value.length > 0) {
+          params.set(key, value.join(','))
+        } else {
+          params.delete(key)
+        }
+      } else {
+        params.set(key, value)
+      }
+    })
+    
+    // Reset to page 1 when filters change
     params.set('page', '1')
     router.push(`/find-developers?${params.toString()}`)
   }
 
+  const handleTypeChange = (type: string) => {
+    setSearchType(type)
+    updateSearchParams({ type: type || null })
+  }
+
+  const handleSkillsChange = (skills: string[]) => {
+    setSelectedSkills(skills)
+    updateSearchParams({ skills: skills })
+  }
+
   return (
     <Container>
-      {/* Filters Section */}
       <div className="bg-light rounded p-4 mb-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h2 className="h5 mb-0">Filter Developers</h2>
+          <h2 className="h5 mb-0">Find Developers</h2>
           <div className="text-muted">
             {totalDevelopers} developers available
           </div>
@@ -78,35 +99,12 @@ export default function FindDevelopersContent() {
 
         <Row>
           <Col md={3}>
-            {/* Developer Type Filter */}
-            <div className="mb-4">
-              <h3 className="h6 mb-3">DEVELOPER TYPE</h3>
-              <div className="d-flex flex-column gap-2">
-                <Form.Check
-                  type="radio"
-                  id="type-all"
-                  label="All Types"
-                  checked={!searchType}
-                  onChange={() => {
-                    setSearchType('')
-                    handleSearch()
-                  }}
-                />
-                {DEVELOPER_TYPES.map(type => (
-                  <Form.Check
-                    key={type}
-                    type="radio"
-                    id={`type-${type}`}
-                    label={type}
-                    checked={searchType === type}
-                    onChange={() => {
-                      setSearchType(type)
-                      handleSearch()
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
+            <FilterSidebar
+              type={searchType}
+              selectedSkills={selectedSkills}
+              onTypeChange={handleTypeChange}
+              onSkillsChange={handleSkillsChange}
+            />
           </Col>
 
           <Col md={9}>

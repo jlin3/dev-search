@@ -3,7 +3,7 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Card, Badge } from 'react-bootstrap'
+import { Card, Badge, Button } from 'react-bootstrap'
 import type { Developer } from '@/types'
 
 interface DeveloperCardProps {
@@ -13,63 +13,51 @@ interface DeveloperCardProps {
 
 export default function DeveloperCard({ dev, onSelect }: DeveloperCardProps) {
   return (
-    <Card className="border shadow-sm hover-shadow">
-      <Card.Body>
-        <div className="d-flex">
-          <div className="me-3">
-            <Image
-              src={dev.picture.medium}
-              alt={`${dev.name.first} ${dev.name.last}`}
-              width={80}
-              height={80}
-              className="rounded"
-            />
-          </div>
-          <div className="flex-grow-1">
-            <div className="d-flex justify-content-between align-items-start mb-2">
-              <div>
-                <h5 className="mb-1">
-                  <Link 
-                    href={`/profile/${dev.login.uuid}`}
-                    className="text-decoration-none"
-                  >
-                    {dev.name.first} {dev.name.last}
-                  </Link>
-                </h5>
-                <div className="d-flex align-items-center gap-2 mb-2">
-                  <span className="text-muted small">{dev.type}</span>
-                  <Badge bg="primary" pill>
-                    ${dev.rate}/hr
-                  </Badge>
-                </div>
-                <div className="mb-2">
-                  {dev.skills.map(skill => (
-                    <Badge 
-                      key={skill} 
-                      bg="secondary" 
-                      className="me-1"
-                    >
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-                <p className="text-secondary small mb-2">
-                  {dev.name.first} has over {Math.floor(Math.random() * 10) + 5} years of experience as a {dev.type.toLowerCase()}, 
-                  specializing in {dev.skills.slice(0, 2).join(' and ')}. Their strengths include 
-                  problem-solving, clear communication, and delivering high-quality solutions.
-                </p>
-              </div>
-              <button 
-                className="btn btn-outline-primary btn-sm"
-                onClick={() => onSelect(dev)}
-              >
-                Contact
-              </button>
-            </div>
-            <p className="mb-0 text-secondary">
-              {dev.location.city}, {dev.location.country}
-            </p>
-          </div>
+    <Card className="h-100 developer-card">
+      <Card.Body className="d-flex flex-column">
+        <div className="text-center mb-3">
+          <img
+            src={dev.picture.medium}
+            alt={`${dev.name.first} ${dev.name.last}`}
+            className="rounded-circle"
+            style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+          />
+        </div>
+
+        <h3 className="h5 text-center mb-2">
+          {dev.name.first} {dev.name.last}
+        </h3>
+
+        <p className="text-muted text-center small mb-3">
+          {dev.type}
+        </p>
+
+        <div className="d-flex flex-wrap gap-1 justify-content-center mb-3">
+          {dev.skills.slice(0, 3).map(skill => (
+            <Badge key={skill} bg="primary" className="text-truncate">
+              {skill}
+            </Badge>
+          ))}
+          {dev.skills.length > 3 && (
+            <Badge bg="secondary">+{dev.skills.length - 3}</Badge>
+          )}
+        </div>
+
+        <div className="text-center mb-3">
+          <p className="text-muted small mb-1">
+            {dev.location.city}, {dev.location.country}
+          </p>
+          <p className="fw-bold mb-0">${dev.rate}/hour</p>
+        </div>
+
+        <div className="mt-auto text-center">
+          <Button
+            variant="outline-primary"
+            onClick={() => onSelect(dev)}
+            className="w-100"
+          >
+            View Profile
+          </Button>
         </div>
       </Card.Body>
     </Card>
