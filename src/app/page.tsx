@@ -70,10 +70,9 @@ function HomeContent() {
       console.log('Fetching developers:', { page, type, location, skills });
       const { developers: data, total } = await getDevelopers(
         page,
-        ITEMS_PER_PAGE,
         type || undefined,
         location || undefined,
-        skills.length > 0 ? skills : undefined
+        skills
       );
       console.log('Fetch results:', { data, total });
       setDevelopers(data);
@@ -93,14 +92,19 @@ function HomeContent() {
   }, [currentPage, filters.type, searchLocation, filters.skills]);
 
   // Handle search
-  const handleSearch = () => {
+  const handleSearch = (type: string, location: string, skills: string[]) => {
     const params = new URLSearchParams();
-    if (filters.type) params.set('type', filters.type);
-    if (searchLocation) params.set('location', searchLocation);
-    if (filters.skills.length > 0) {
-      params.set('skills', filters.skills.join(','));
-    }
+    if (type) params.set('type', type);
+    if (location) params.set('location', location);
+    if (skills.length > 0) params.set('skills', skills.join(','));
     params.set('page', '1');
+    
+    router.push(`/?${params.toString()}`);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', newPage.toString());
     router.push(`/?${params.toString()}`);
   };
 
@@ -124,7 +128,7 @@ function HomeContent() {
       <Container className="py-4">
         <Row className="align-items-center justify-content-end">
           <Col md="auto">
-            <Form className="d-flex flex-column flex-md-row gap-2" onSubmit={(e) => { e.preventDefault(); handleSearch(); }}>
+            <Form className="d-flex flex-column flex-md-row gap-2" onSubmit={(e) => { e.preventDefault(); handleSearch(filters.type, searchLocation, filters.skills); }}>
               <div className="d-flex gap-2">
                 <Form.Select 
                   className="w-auto flex-grow-0"
@@ -215,11 +219,7 @@ function HomeContent() {
                       <Pagination
                         currentPage={currentPage}
                         totalPages={Math.ceil(totalDevelopers / ITEMS_PER_PAGE)}
-                        onPageChange={(page) => {
-                          const params = new URLSearchParams(searchParams.toString())
-                          params.set('page', page.toString())
-                          router.push(`/?${params.toString()}`)
-                        }}
+                        onPageChange={handlePageChange}
                       />
                     </div>
                   )}
