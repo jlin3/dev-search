@@ -41,13 +41,13 @@ export default function Header() {
           <div className="d-flex align-items-center gap-4 flex-grow-1">
             <Link 
               href="/find-developers" 
-              className={`text-decoration-none fw-medium ${pathname === '/find-developers' ? 'text-primary fw-semibold' : 'text-dark'}`}
+              className={`text-decoration-none ${pathname === '/find-developers' ? 'text-primary fw-semibold' : 'text-dark opacity-75 hover-opacity-100'}`}
             >
               Find Developers
             </Link>
             <Link 
               href="/resources" 
-              className={`text-decoration-none fw-medium ${pathname === '/resources' ? 'text-primary fw-semibold' : 'text-dark'}`}
+              className={`text-decoration-none ${pathname === '/resources' ? 'text-primary fw-semibold' : 'text-dark opacity-75 hover-opacity-100'}`}
             >
               Resources
             </Link>
@@ -56,13 +56,13 @@ export default function Header() {
           <div className="d-flex align-items-center gap-4">
             <Link 
               href="/sign-up" 
-              className={`text-decoration-none fw-medium ${pathname === '/sign-up' ? 'text-primary fw-semibold' : 'text-dark'}`}
+              className={`text-decoration-none ${pathname === '/sign-up' ? 'text-primary fw-semibold' : 'text-dark opacity-75 hover-opacity-100'}`}
             >
               Sign Up
             </Link>
             <Link 
               href="/login" 
-              className="btn btn-primary px-4"
+              className="btn btn-primary px-4 py-2"
             >
               Login
             </Link>
@@ -72,15 +72,15 @@ export default function Header() {
 
       {/* Search Section */}
       {isSearchPage && (
-        <div className="bg-primary py-4">
+        <div className="bg-white border-bottom py-4">
           <Container>
             {/* Breadcrumb */}
             <div className="d-flex mb-3">
-              <Link href="/" className="text-white text-decoration-none opacity-75 hover-opacity-100">
+              <Link href="/" className="text-dark text-decoration-none opacity-75 hover-opacity-100">
                 Home
               </Link>
-              <span className="text-white mx-2 opacity-75">›</span>
-              <span className="text-white">Find Developers</span>
+              <span className="text-dark mx-2 opacity-75">›</span>
+              <span className="text-dark">Find Developers</span>
             </div>
             
             {/* Search Controls */}
@@ -96,7 +96,7 @@ export default function Header() {
                   <option key={type} value={type}>{type}</option>
                 ))}
               </Form.Select>
-              <span className="text-white fw-medium">in</span>
+              <span className="text-dark opacity-75">in</span>
               <Form.Control
                 type="search"
                 placeholder="Enter location"
@@ -105,7 +105,7 @@ export default function Header() {
                 className="flex-grow-0 py-2"
                 style={{ width: '300px' }}
               />
-              <button className="btn btn-light px-4 py-2 fw-medium">
+              <button className="btn btn-primary px-4 py-2">
                 Search
               </button>
             </div>

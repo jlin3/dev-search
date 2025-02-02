@@ -78,9 +78,11 @@ export default function ProfilePage() {
                 <Image
                   src={developer.picture.large}
                   alt={`${developer.name.first} ${developer.name.last}`}
-                  width={120}
-                  height={120}
+                  width={96}
+                  height={96}
                   className="rounded-circle"
+                  priority
+                  quality={95}
                 />
                 <div>
                   <h1 className="h3 mb-2">{developer.name.first} {developer.name.last}</h1>
