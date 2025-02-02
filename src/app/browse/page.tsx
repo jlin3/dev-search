@@ -4,13 +4,14 @@ import React, { useState, useEffect } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 import { BeatLoader } from 'react-spinners'
 import Link from 'next/link'
-import DeveloperCard from '@/components/Search/DeveloperCard'
+import DeveloperCard from '@/components/DeveloperCard'
 import InquiryModal from '@/components/InquiryModal'
 import Pagination from '@/components/Search/Pagination'
-import type { Developer } from '@/types'
+import type { Developer, Filters } from '@/types'
 import RootLayout from '@/components/Layout/RootLayout'
 import Header from '@/components/Layout/Header'
-import { getDevelopers } from '@/services/api'
+import { getDevelopers } from '@/app/actions'
+import FilterBar from '@/components/FilterBar'
 
 const ITEMS_PER_PAGE = 12
 
@@ -21,15 +22,18 @@ export default function BrowsePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedDev, setSelectedDev] = useState<Developer | null>(null)
+  const [filters, setFilters] = useState<Filters>({
+    type: '',
+    skills: []
+  })
 
   useEffect(() => {
     const fetchDevelopers = async () => {
       try {
         setLoading(true)
-        // Pass undefined for type and location to get all developers
-        const { developers: data, total } = await getDevelopers(currentPage, undefined, undefined, [])
+        const data = await getDevelopers()
         setDevelopers(data)
-        setTotalDevelopers(total)
+        setTotalDevelopers(data.length)
         setError('')
       } catch (error) {
         console.error('Failed to fetch developers:', error)
@@ -45,6 +49,11 @@ export default function BrowsePage() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
     window.scrollTo(0, 0)
+  }
+
+  const handleFilterChange = (newFilters: Filters) => {
+    setFilters(newFilters)
+    // In a real app, this would trigger an API call with the filters
   }
 
   return (
@@ -75,7 +84,7 @@ export default function BrowsePage() {
             </div>
             <Row className="g-4">
               {developers.map(dev => (
-                <Col md={6} lg={4} key={dev.login.uuid}>
+                <Col md={6} lg={4} key={dev.id}>
                   <DeveloperCard dev={dev} onSelect={setSelectedDev} />
                 </Col>
               ))}
@@ -92,6 +101,12 @@ export default function BrowsePage() {
             )}
           </>
         )}
+
+        <Row className="mb-4">
+          <Col>
+            <FilterBar filters={filters} onChange={handleFilterChange} />
+          </Col>
+        </Row>
 
         {selectedDev && (
           <InquiryModal
