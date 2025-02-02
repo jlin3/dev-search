@@ -1,29 +1,23 @@
-export interface Name {
-  first: string;
-  last: string;
-}
-
-export interface Location {
-  city: string;
-  country: string;
-}
-
-export interface Experience {
-  role: string;
-  company: string;
-  period: string;
-  achievements: string[];
-  technologies: string[] | string;
-}
-
 export interface Developer {
   id: string;
-  name: Name;
+  name: {
+    first: string;
+    last: string;
+  };
   type: string;
   avatar: string;
   bio: string;
-  location: Location;
-  experience: Experience[];
+  location: {
+    city: string;
+    country: string;
+  };
+  experience: {
+    title: string;
+    company: string;
+    period: string;
+    achievements: string[];
+    technologies: string[];
+  }[];
   skills: string[];
 }
 
