@@ -42,12 +42,12 @@ export default function BrowsePage() {
       <Header />
       <Container>
         {/* Navigation */}
-        <div className="d-flex justify-content-between align-items-center py-4">
-          <h1 className="h4 mb-0">Browse Developers</h1>
-          <Link href="/" className="text-decoration-none">
-            Back to Search
-          </Link>
-        </div>
+        <Row className="py-4 mb-3 align-items-center">
+          <Col><h1 className="h4 mb-0">Browse Developers</h1></Col>
+          <Col className="text-end">
+            <Link href="/" className="btn btn-outline-primary">Back to Search</Link>
+          </Col>
+        </Row>
 
         {error ? (
           <div className="alert alert-danger" role="alert">

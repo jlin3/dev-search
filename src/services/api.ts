@@ -32,7 +32,7 @@ export const getDevelopers = async (
     const response = await api.get<RandomUserResponse>(`/?page=${page}&results=${results * 3}&seed=platter${page}`);
 
     // Enhance developers with skills and types
-    let developers = enhanceDevelopers(response.data.results, `page${page}`);
+    let developers = enhanceDevelopers(response.data.results);
     
     // Get unique locations
     const uniqueLocations = Array.from(new Set(developers.map(dev => dev.location.country))).sort();
@@ -109,10 +109,10 @@ const getRandomType = (seed?: string): string => {
   ];
   
   if (seed) {
-    // Use UUID to generate consistent type based on position
-    const uuidNumber = parseInt(seed.replace(/[^0-9]/g, '').slice(0, 2));
-    const index = uuidNumber % types.length;
-    console.log('Type generation:', { seed, uuidNumber, index, selectedType: types[index] });
+    // Use a simple hash function to sum char codes of the entire seed string
+    const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const index = Math.abs(hash) % types.length;
+    console.log('Type generation:', { seed, hash, index, selectedType: types[index] });
     return types[index];
   }
   
