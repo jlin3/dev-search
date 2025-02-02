@@ -188,7 +188,12 @@ function HomeContent() {
                     </Button>
                   </div>
                   <div className={`filters-content ${showFilters ? 'd-block' : 'd-none d-lg-block'}`}>
-                    <Filters filters={filters} setFilters={setFilters} />
+                    <Filters 
+                      type={filters.type}
+                      selectedSkills={filters.skills}
+                      onTypeChange={(type) => setFilters(prev => ({ ...prev, type }))}
+                      onSkillsChange={(skills) => setFilters(prev => ({ ...prev, skills }))}
+                    />
                   </div>
                 </div>
               </div>
