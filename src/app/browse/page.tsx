@@ -23,7 +23,7 @@ export default function BrowsePage() {
     const fetchDevelopers = async () => {
       try {
         setLoading(true)
-        const { developers: data } = await getDevelopers(1, ITEMS_PER_PAGE)
+        const { developers: data } = await getDevelopers(1)
         setDevelopers(data)
         setError('')
       } catch (error) {
