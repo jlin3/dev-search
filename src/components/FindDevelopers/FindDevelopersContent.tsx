@@ -23,23 +23,21 @@ export default function FindDevelopersContent() {
   const [error, setError] = useState('')
   const [selectedDev, setSelectedDev] = useState<Developer | null>(null)
   
-  // Get initial values from URL or defaults
-  const [searchType, setSearchType] = useState(searchParams.get('type') || '')
-  const [selectedSkills, setSelectedSkills] = useState<string[]>(
-    searchParams.get('skills')?.split(',').filter(Boolean) || []
-  )
-  const currentPage = Number(searchParams.get('page')) || 1
+  // Get search parameters
+  const page = parseInt(searchParams.get('page') || '1')
+  const searchType = searchParams.get('type') || ''
+  const searchLocation = searchParams.get('location') || ''
+  const selectedSkills = searchParams.get('skills')?.split(',').filter(Boolean) || []
 
   useEffect(() => {
     const fetchDevelopers = async () => {
       try {
         setLoading(true)
         const { developers: data, total } = await getDevelopers(
-          currentPage, 
-          ITEMS_PER_PAGE, 
+          page,
           searchType || undefined,
-          searchParams.get('location') || undefined,
-          selectedSkills.length > 0 ? selectedSkills : undefined
+          searchLocation || undefined,
+          selectedSkills
         )
         setDevelopers(data)
         setTotalDevelopers(total)
@@ -53,7 +51,7 @@ export default function FindDevelopersContent() {
     }
 
     fetchDevelopers()
-  }, [currentPage, searchType, selectedSkills, searchParams])
+  }, [page, searchType, searchLocation, selectedSkills])
 
   const updateSearchParams = (updates: Record<string, string | string[] | null>) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -78,13 +76,20 @@ export default function FindDevelopersContent() {
   }
 
   const handleTypeChange = (type: string) => {
-    setSearchType(type)
     updateSearchParams({ type: type || null })
   }
 
   const handleSkillsChange = (skills: string[]) => {
-    setSelectedSkills(skills)
     updateSearchParams({ skills: skills })
+  }
+
+  if (error) {
+    return (
+      <div className="alert alert-danger m-4" role="alert">
+        <h4 className="alert-heading">Error</h4>
+        <p>{error}</p>
+      </div>
+    )
   }
 
   return (
@@ -108,20 +113,19 @@ export default function FindDevelopersContent() {
           </Col>
 
           <Col md={9}>
-            {error ? (
-              <div className="alert alert-danger" role="alert">
-                <h4 className="alert-heading">Error</h4>
-                <p>{error}</p>
-              </div>
-            ) : loading ? (
+            {loading ? (
               <div className="text-center py-5">
                 <BeatLoader color="#007bff" />
               </div>
             ) : developers.length > 0 ? (
               <>
+                <h2 className="h5 mb-4">
+                  {searchType ? `Top ${searchType}s` : 'All Developers'}
+                  {searchLocation && ` in ${searchLocation}`}
+                </h2>
                 <Row className="g-4">
                   {developers.map(dev => (
-                    <Col md={6} lg={4} key={dev.login.uuid}>
+                    <Col xs={12} key={dev.login.uuid}>
                       <DeveloperCard dev={dev} onSelect={setSelectedDev} />
                     </Col>
                   ))}
@@ -130,7 +134,7 @@ export default function FindDevelopersContent() {
                 {totalDevelopers > ITEMS_PER_PAGE && (
                   <div className="mt-4">
                     <Pagination
-                      currentPage={currentPage}
+                      currentPage={page}
                       totalPages={Math.ceil(totalDevelopers / ITEMS_PER_PAGE)}
                       onPageChange={(page) => {
                         const params = new URLSearchParams(searchParams.toString())
