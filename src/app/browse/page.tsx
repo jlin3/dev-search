@@ -4,14 +4,14 @@ import React, { useState, useEffect } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 import { BeatLoader } from 'react-spinners'
 import Link from 'next/link'
-import DeveloperCard from '@/components/DeveloperCard'
+import DeveloperCard from '@/components/Search/DeveloperCard'
 import InquiryModal from '@/components/InquiryModal'
 import Pagination from '@/components/Search/Pagination'
 import type { Developer, Filters } from '@/types'
 import RootLayout from '@/components/Layout/RootLayout'
 import Header from '@/components/Layout/Header'
 import { getDevelopers } from '@/app/actions'
-import FilterBar from '@/components/FilterBar'
+import FilterSidebar from '@/components/Search/FilterSidebar'
 
 const ITEMS_PER_PAGE = 12
 
@@ -104,7 +104,12 @@ export default function BrowsePage() {
 
         <Row className="mb-4">
           <Col>
-            <FilterBar filters={filters} onChange={handleFilterChange} />
+            <FilterSidebar
+              type={filters.type}
+              selectedSkills={filters.skills}
+              onTypeChange={(type) => handleFilterChange({ ...filters, type })}
+              onSkillsChange={(skills) => handleFilterChange({ ...filters, skills })}
+            />
           </Col>
         </Row>
 
