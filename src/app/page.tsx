@@ -55,7 +55,7 @@ function HomeContent() {
   
   // Get filters from URL
   const initialFilters = {
-    type: searchParams.get('type') || 'Full-stack developer',
+    type: searchParams.get('type') || '',
     skills: searchParams.get('skills')?.split(',').filter(Boolean) || []
   }
   
@@ -159,6 +159,7 @@ function HomeContent() {
                   aria-label="Select developer type"
                   style={{ minWidth: '200px' }}
                 >
+                  <option value="">All Types</option>
                   {DEVELOPER_TYPES.map(type => (
                     <option key={type} value={type}>{type}</option>
                   ))}
