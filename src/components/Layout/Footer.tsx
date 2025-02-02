@@ -5,11 +5,11 @@ import { Container, Row, Col } from 'react-bootstrap'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-const HIGHEST_DEMAND = [
-  { title: 'iOS Developer', type: 'Mobile developer' },
-  { title: 'Front-End Developer', type: 'Frontend developer' },
-  { title: 'Full-Stack Developer', type: 'Full-stack developer' },
+const POPULAR_SEARCHES = [
+  { title: 'Full Stack Developer', type: 'Full Stack developer' },
+  { title: 'Frontend Developer', type: 'Frontend developer' },
   { title: 'Backend Developer', type: 'Backend developer' },
+  { title: 'Mobile Developer', type: 'Mobile developer' },
   { title: 'Data Scientist', type: 'Data scientist' }
 ]
 
@@ -36,7 +36,7 @@ export default function Footer() {
           <Col md={4}>
             <h5 className="mb-3">Highest Demand Talents</h5>
             <ul className="list-unstyled">
-              {HIGHEST_DEMAND.map(role => (
+              {POPULAR_SEARCHES.map(role => (
                 <li key={role.title} className="mb-2">
                   <Link 
                     href={`/find-developers?type=${encodeURIComponent(role.type)}`}
