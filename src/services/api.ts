@@ -20,7 +20,8 @@ export const getDevelopers = async (
   page: number = 1,
   results: number = 12,
   type?: string,
-  location?: string
+  location?: string,
+  skills?: string[]
 ): Promise<{
   developers: Developer[];
   total: number;
@@ -36,9 +37,10 @@ export const getDevelopers = async (
     // Get unique locations
     const uniqueLocations = Array.from(new Set(developers.map(dev => dev.location.country))).sort();
     
-    // Apply filters only if specified
-    if (type || location) {
-      developers = applyFilters(developers, type ? { type, skills: [] } : undefined, location);
+    // Apply filters if any filter criteria is specified
+    if (type || location || (skills && skills.length > 0)) {
+      // Pass filters object including type and skills
+      developers = applyFilters(developers, { type: type || '', skills: skills || [] }, location);
     }
     
     // Calculate total (use a multiplier to simulate more results)
@@ -56,8 +58,8 @@ export const getDevelopers = async (
 };
 
 const applyFilters = (
-  developers: Developer[], 
-  filters?: Filters,
+  developers: Developer[],
+  filters?: { type: string; skills: string[] },
   location?: string
 ): Developer[] => {
   let filtered = [...developers];
@@ -70,6 +72,13 @@ const applyFilters = (
     const searchLocation = location.toLowerCase();
     filtered = filtered.filter(dev => 
       dev.location.country.toLowerCase().includes(searchLocation)
+    );
+  }
+
+  // New: filter by skills if any are selected
+  if (filters?.skills && filters.skills.length > 0) {
+    filtered = filtered.filter(dev => 
+      filters.skills.every(skill => dev.skills.includes(skill))
     );
   }
 
@@ -142,19 +151,20 @@ const enhanceDevelopers = (developers: any[], seed?: string): Developer[] => {
     const type = getRandomType(seed || dev.login.uuid);
     const skills = getRandomSkills(type, seed || dev.login.uuid);
     const rate = Math.floor(Math.random() * 100) + 50;
-    
+    const experience = Math.floor(Math.random() * 10) + 5; // consistent experience value
     console.log('Enhanced developer:', {
       name: `${dev.name.first} ${dev.name.last}`,
       type,
       skills,
-      rate
+      rate,
+      experience
     });
-    
     return {
       ...dev,
       skills,
       type,
-      rate
+      rate,
+      experience
     };
   });
   

@@ -48,7 +48,6 @@ function HomeContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showFilters, setShowFilters] = useState(false)
-  const [searchType, setSearchType] = useState('Full-stack developer')
   const [searchLocation, setSearchLocation] = useState('United States')
   
   // Get page from URL or default to 1
@@ -67,9 +66,9 @@ function HomeContent() {
   useEffect(() => {
     const fetchInitialDevelopers = async () => {
       try {
-        console.log('Starting initial fetch with:', { searchType, searchLocation });
+        console.log('Starting initial fetch with:', { filters, searchLocation });
         setLoading(true);
-        const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, 'Full-stack developer', 'United States');
+        const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, filters.type, searchLocation, filters.skills);
         console.log('Initial fetch results:', { data, total });
         setDevelopers(data);
         setTotalDevelopers(total);
@@ -87,14 +86,12 @@ function HomeContent() {
 
   // Fetch when filters change
   useEffect(() => {
-    if (!searchParams.get('type')) return; // Don't run if no type in URL (initial load)
-
     const fetchDevelopers = async () => {
       try {
-        console.log('Fetching with filters:', { filters, searchLocation });
         setLoading(true);
-        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE, filters.type, searchLocation);
-        console.log('Filter fetch results:', { data, total });
+        console.log('Fetching developers with filters:', filters, 'and location:', searchLocation, 'page:', currentPage);
+        const { developers: data, total } = await getDevelopers(currentPage, ITEMS_PER_PAGE, filters.type, searchLocation, filters.skills);
+        console.log('Fetch results:', { data, total });
         setDevelopers(data);
         setTotalDevelopers(total);
         setError('');
@@ -105,30 +102,32 @@ function HomeContent() {
         setLoading(false);
       }
     };
-
     fetchDevelopers();
-  }, [currentPage, filters, searchLocation, searchParams]);
+  }, [currentPage, filters, searchLocation]);
 
   // Handle search
   const handleSearch = async () => {
     try {
-      setLoading(true)
-      const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, searchType, searchLocation)
-      setDevelopers(data)
-      setTotalDevelopers(total)
-      setError('')
-      
-      const params = new URLSearchParams()
-      params.set('type', searchType)
-      params.set('location', searchLocation)
-      router.push(`/?${params.toString()}`)
+      setLoading(true);
+      const { developers: data, total } = await getDevelopers(1, ITEMS_PER_PAGE, filters.type, searchLocation, filters.skills);
+      setDevelopers(data);
+      setTotalDevelopers(total);
+      setError('');
+
+      const params = new URLSearchParams();
+      params.set('type', filters.type);
+      params.set('location', searchLocation);
+      if (filters.skills && filters.skills.length > 0) {
+        params.set('skills', filters.skills.join(','));
+      }
+      router.push(`/?${params.toString()}`);
     } catch (error) {
-      console.error('Failed to fetch developers:', error)
-      setError('Failed to fetch developers. Please try again later.')
+      console.error('Failed to fetch developers:', error);
+      setError('Failed to fetch developers. Please try again later.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Container fluid className="px-0">
@@ -154,8 +153,8 @@ function HomeContent() {
               <div className="d-flex gap-2">
                 <Form.Select 
                   className="w-auto flex-grow-0"
-                  value={searchType}
-                  onChange={(e) => setSearchType(e.target.value)}
+                  value={filters.type}
+                  onChange={(e) => setFilters({ ...filters, type: e.target.value })}
                   title="Developer type"
                   aria-label="Select developer type"
                   style={{ minWidth: '200px' }}
@@ -223,7 +222,7 @@ function HomeContent() {
                 </div>
               ) : developers.length > 0 ? (
                 <>
-                  <h2 className="h5 mb-4">Top {searchType}s in {searchLocation}</h2>
+                  <h2 className="h5 mb-4">Top {filters.type}s in {searchLocation}</h2>
                   <Row className="g-4">
                     {developers.map(dev => (
                       <Col xs={12} key={dev.login.uuid}>

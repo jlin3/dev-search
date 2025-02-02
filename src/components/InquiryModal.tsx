@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Modal, Form, Button } from 'react-bootstrap';
+import { Modal, Form, Button, Spinner } from 'react-bootstrap';
 import type { Developer } from '@/types';
 
 interface InquiryModalProps {
@@ -14,11 +14,15 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
+  const [sending, setSending] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Handle form submission
-    onClose();
+    setSending(true);
+    setTimeout(() => {
+      setSending(false);
+      onClose();
+    }, 3000);
   };
 
   return (
@@ -36,6 +40,7 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              disabled={sending}
             />
           </Form.Group>
           <Form.Group className="mb-3">
@@ -45,6 +50,7 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={sending}
             />
           </Form.Group>
           <Form.Group className="mb-3">
@@ -54,6 +60,7 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
               value={company}
               onChange={(e) => setCompany(e.target.value)}
               required
+              disabled={sending}
             />
           </Form.Group>
           <Form.Group className="mb-3">
@@ -65,14 +72,15 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Write your message here..."
               required
+              disabled={sending}
             />
           </Form.Group>
           <div className="d-flex gap-2 justify-content-end">
-            <Button variant="secondary" onClick={onClose}>
+            <Button variant="secondary" onClick={onClose} disabled={sending}>
               Cancel
             </Button>
-            <Button variant="primary" type="submit">
-              Send Message
+            <Button variant="primary" type="submit" disabled={sending}>
+              {sending ? <><Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Sending...</> : 'Send Message'}
             </Button>
           </div>
         </Form>
