@@ -1,12 +1,19 @@
 export interface Developer {
   id: string;
+  login: {
+    uuid: string;
+  };
   name: {
     first: string;
     last: string;
   };
   type: string;
-  avatar: string;
-  bio: string;
+  picture: {
+    large: string;
+    medium: string;
+    thumbnail: string;
+  };
+  summary: string;
   location: {
     city: string;
     country: string;
@@ -16,7 +23,7 @@ export interface Developer {
     company: string;
     period: string;
     achievements: string[];
-    technologies: string[];
+    technologies: string;
   }[];
   skills: string[];
 }

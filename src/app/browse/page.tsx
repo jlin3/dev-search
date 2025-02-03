@@ -2,16 +2,16 @@
 
 import React, { useState, useEffect } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
-import { BeatLoader } from 'react-spinners'
 import Link from 'next/link'
+import { BeatLoader } from 'react-spinners'
+import RootLayout from '@/components/Layout/RootLayout'
+import Header from '@/components/Layout/Header'
+import { getDevelopers } from '@/services/api'
 import DeveloperCard from '@/components/Search/DeveloperCard'
 import InquiryModal from '@/components/InquiryModal'
 import Pagination from '@/components/Search/Pagination'
-import type { Developer, Filters } from '@/types'
-import RootLayout from '@/components/Layout/RootLayout'
-import Header from '@/components/Layout/Header'
-import { getDevelopers } from '@/app/actions'
 import FilterSidebar from '@/components/Search/FilterSidebar'
+import type { Developer } from '@/types'
 
 const ITEMS_PER_PAGE = 12
 
@@ -22,18 +22,21 @@ export default function BrowsePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedDev, setSelectedDev] = useState<Developer | null>(null)
-  const [filters, setFilters] = useState<Filters>({
-    type: '',
-    skills: []
-  })
+  const [selectedType, setSelectedType] = useState('All Types')
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([])
 
   useEffect(() => {
     const fetchDevelopers = async () => {
       try {
         setLoading(true)
-        const data = await getDevelopers()
+        const { developers: data, total } = await getDevelopers(
+          currentPage,
+          selectedType === 'All Types' ? undefined : selectedType,
+          undefined,
+          selectedSkills
+        )
         setDevelopers(data)
-        setTotalDevelopers(data.length)
+        setTotalDevelopers(total)
         setError('')
       } catch (error) {
         console.error('Failed to fetch developers:', error)
@@ -44,16 +47,11 @@ export default function BrowsePage() {
     }
 
     fetchDevelopers()
-  }, [currentPage])
+  }, [currentPage, selectedType, selectedSkills])
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
     window.scrollTo(0, 0)
-  }
-
-  const handleFilterChange = (newFilters: Filters) => {
-    setFilters(newFilters)
-    // In a real app, this would trigger an API call with the filters
   }
 
   return (
@@ -68,48 +66,49 @@ export default function BrowsePage() {
           </Col>
         </Row>
 
-        {error ? (
-          <div className="alert alert-danger" role="alert">
-            <h4 className="alert-heading">Error</h4>
-            <p>{error}</p>
-          </div>
-        ) : loading ? (
-          <div className="text-center py-5">
-            <BeatLoader color="#007bff" />
-          </div>
-        ) : (
-          <>
-            <div className="mb-4">
-              <p className="text-muted">Showing {developers.length} of {totalDevelopers} developers</p>
-            </div>
-            <Row className="g-4">
-              {developers.map(dev => (
-                <Col md={6} lg={4} key={dev.id}>
-                  <DeveloperCard dev={dev} onSelect={setSelectedDev} />
-                </Col>
-              ))}
-            </Row>
-
-            {totalDevelopers > ITEMS_PER_PAGE && (
-              <div className="d-flex justify-content-center mt-4">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={Math.ceil(totalDevelopers / ITEMS_PER_PAGE)}
-                  onPageChange={handlePageChange}
-                />
-              </div>
-            )}
-          </>
-        )}
-
-        <Row className="mb-4">
-          <Col>
+        <Row>
+          <Col md={3}>
             <FilterSidebar
-              type={filters.type}
-              selectedSkills={filters.skills}
-              onTypeChange={(type) => handleFilterChange({ ...filters, type })}
-              onSkillsChange={(skills) => handleFilterChange({ ...filters, skills })}
+              type={selectedType}
+              selectedSkills={selectedSkills}
+              onTypeChange={setSelectedType}
+              onSkillsChange={setSelectedSkills}
             />
+          </Col>
+          <Col md={9}>
+            {error ? (
+              <div className="alert alert-danger" role="alert">
+                <h4 className="alert-heading">Error</h4>
+                <p>{error}</p>
+              </div>
+            ) : loading ? (
+              <div className="text-center py-5">
+                <BeatLoader color="#007bff" />
+              </div>
+            ) : (
+              <>
+                <div className="mb-4">
+                  <p className="text-muted">Showing {developers.length} of {totalDevelopers} developers</p>
+                </div>
+                <Row className="g-4">
+                  {developers.map(dev => (
+                    <Col md={6} lg={4} key={dev.login.uuid}>
+                      <DeveloperCard dev={dev} onSelect={setSelectedDev} />
+                    </Col>
+                  ))}
+                </Row>
+
+                {totalDevelopers > ITEMS_PER_PAGE && (
+                  <div className="d-flex justify-content-center mt-4">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={Math.ceil(totalDevelopers / ITEMS_PER_PAGE)}
+                      onPageChange={handlePageChange}
+                    />
+                  </div>
+                )}
+              </>
+            )}
           </Col>
         </Row>
 
