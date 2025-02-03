@@ -25,8 +25,8 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
     if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.message.trim()) return;
 
     setSending(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Simulate API call with 3-second delay
+    await new Promise(resolve => setTimeout(resolve, 3000));
     setSending(false);
     setSuccess(true);
   };
@@ -53,6 +53,7 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
                   value={formData.firstName}
                   onChange={e => setFormData({ ...formData, firstName: e.target.value })}
                   disabled={sending}
+                  required
                 />
               </Col>
               <Col>
@@ -62,6 +63,7 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
                   value={formData.lastName}
                   onChange={e => setFormData({ ...formData, lastName: e.target.value })}
                   disabled={sending}
+                  required
                 />
               </Col>
             </Row>
@@ -72,6 +74,7 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
               value={formData.email}
               onChange={e => setFormData({ ...formData, email: e.target.value })}
               disabled={sending}
+              required
             />
             <Form.Control
               as="textarea"
@@ -81,9 +84,9 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
               value={formData.message}
               onChange={e => setFormData({ ...formData, message: e.target.value })}
               disabled={sending}
+              required
             />
             <div className="mb-3">
-              {/* reCAPTCHA placeholder - would be replaced with actual reCAPTCHA component */}
               <div className="border rounded p-3 bg-light">
                 <div className="d-flex align-items-center">
                   <Form.Check
@@ -92,7 +95,7 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
                     label="I'm not a robot"
                     disabled={sending}
                   />
-                  <img src="/images/recaptcha-icon.png" alt="reCAPTCHA" className="ms-auto" style={{ width: '32px', height: '32px' }} />
+                  <img src="/images/recaptcha-icon.png" alt="reCAPTCHA verification" className="ms-auto" style={{ width: '32px', height: '32px' }} />
                 </div>
               </div>
             </div>
@@ -105,7 +108,12 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
                 type="submit"
                 disabled={sending || !formData.firstName || !formData.lastName || !formData.email || !formData.message}
               >
-                {sending ? <BeatLoader size={8} color="#ffffff" /> : 'Contact'}
+                {sending ? (
+                  <span className="d-flex align-items-center gap-2">
+                    <BeatLoader size={8} color="#ffffff" />
+                    <span>Sending...</span>
+                  </span>
+                ) : 'Send Message'}
               </Button>
             </div>
           </Form>
