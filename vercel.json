@@ -1,0 +1,5 @@
+{
+  "buildCommand": "rm -rf .next && next build",
+  "cleanUrls": true,
+  "framework": "nextjs"
+} 
