@@ -13,13 +13,20 @@ export interface Developer {
     thumbnail: string;
   };
   skills: string[];
-  type: 'Full Stack' | 'Frontend' | 'Backend';
+  type: DeveloperType;
   rate: number;
   location: {
     country: string;
     city: string;
   };
 }
+
+export type DeveloperType = 
+  | 'Full Stack developer'
+  | 'Frontend developer'
+  | 'Backend developer'
+  | 'Mobile developer'
+  | 'Data scientist';
 
 export interface Filters {
   type: string;
