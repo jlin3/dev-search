@@ -4,8 +4,6 @@ A modern web application built with Next.js and TypeScript for connecting with s
 
 > **Live Demo**: [https://dev-search-jlin3.vercel.app](https://dev-search-jlin3.vercel.app)
 
-![Dev Search Screenshot](public/screenshot.png)
-
 ## Features
 
 - **Advanced Developer Search**: Find developers by skills, type (Full Stack, Frontend, Backend, etc.), and location
