@@ -72,7 +72,7 @@ export default function DeveloperProfile() {
                 <strong>Experience:</strong> {totalYears}+ years
               </div>
               <div className="mb-3">
-                <strong>Rate:</strong> ${`$${developer.rate}/hour`}
+                <strong>Rate:</strong> ${developer.rate}/hour
               </div>
               <Button 
                 variant="primary" 
