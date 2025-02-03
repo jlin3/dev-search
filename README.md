@@ -1,6 +1,8 @@
-# Dev Search
+# Dev Search 🔍
 
 A modern web application built with Next.js and TypeScript for connecting with skilled developers. The platform allows users to search, filter, and connect with developers based on their skills, experience, and expertise.
+
+> **Live Demo**: [https://dev-search-jlin3.vercel.app](https://dev-search-jlin3.vercel.app)
 
 ![Dev Search Screenshot](public/screenshot.png)
 
