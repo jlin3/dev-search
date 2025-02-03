@@ -39,8 +39,8 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
       <Modal.Body>
         {success ? (
           <div className="text-center py-4">
-            <h4 className="text-success mb-3">Message Sent Successfully!</h4>
-            <p className="mb-4">Thank you for reaching out. {dev.name.first} will get back to you soon.</p>
+            <div className="h4 text-success mb-3">Message Sent Successfully!</div>
+            <p className="text-muted mb-4">Your message has been sent to {dev.name.first}. They will get back to you soon.</p>
             <Button variant="primary" onClick={onClose}>Close</Button>
           </div>
         ) : (
@@ -92,12 +92,7 @@ export default function InquiryModal({ dev, onClose }: InquiryModalProps) {
                     label="I'm not a robot"
                     disabled={sending}
                   />
-                  <img 
-                    src="/images/recaptcha-icon.png" 
-                    alt="reCAPTCHA" 
-                    className="ms-auto" 
-                    style={{ width: '24px', height: '24px', objectFit: 'contain' }} 
-                  />
+                  <img src="/images/recaptcha-icon.png" alt="reCAPTCHA" className="ms-auto" style={{ width: '32px', height: '32px' }} />
                 </div>
               </div>
             </div>
