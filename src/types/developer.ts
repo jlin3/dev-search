@@ -1,3 +1,11 @@
+export interface WorkExperience {
+  title: string;
+  company: string;
+  period: string;
+  achievements: string[];
+  technologies: string;
+}
+
 export interface Developer {
   login: {
     uuid: string;
@@ -19,6 +27,8 @@ export interface Developer {
     country: string;
     city: string;
   };
+  summary: string;
+  experience: WorkExperience[];
 }
 
 export type DeveloperType = 
