@@ -27,7 +27,7 @@ export default function DeveloperCard({ dev, onSelect }: DeveloperCardProps) {
               <div>
                 <h5 className="mb-1">
                   <Link 
-                    href={`/developers/${dev.login.uuid}`}
+                    href={`/profile/${dev.login.uuid}`}
                     className="text-decoration-none text-dark"
                   >
                     {dev.name.first} {dev.name.last}
@@ -70,7 +70,7 @@ export default function DeveloperCard({ dev, onSelect }: DeveloperCardProps) {
                   Connect
                 </Button>
                 <Link 
-                  href={`/developers/${dev.login.uuid}`}
+                  href={`/profile/${dev.login.uuid}`}
                   className="btn btn-link btn-sm text-decoration-none p-0"
                 >
                   View Profile
