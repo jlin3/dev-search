@@ -5,13 +5,20 @@ import { Developer } from '@/types'
 export async function getDeveloperData(id: string): Promise<Developer> {
   return {
     id: '1',
+    login: {
+      uuid: '1'
+    },
     name: {
       first: 'George',
       last: 'Griffin'
     },
     type: 'Full-stack developer',
-    avatar: '/images/george.jpg',
-    bio: 'George has over 15 years of experience as a full-stack developer, including creating a #1 iOS game in 2008 and scaling Yahoo! ad servers. George\'s strengths are adaptability, clear communication, and a relentless focus on the details that get projects shipped.',
+    picture: {
+      large: '/images/george.jpg',
+      medium: '/images/george.jpg',
+      thumbnail: '/images/george.jpg'
+    },
+    summary: 'George has over 15 years of experience as a full-stack developer, including creating a #1 iOS game in 2008 and scaling Yahoo! ad servers. George\'s strengths are adaptability, clear communication, and a relentless focus on the details that get projects shipped.',
     location: {
       city: 'New York',
       country: 'United States'
@@ -27,7 +34,7 @@ export async function getDeveloperData(id: string): Promise<Developer> {
           'Co-author of VisualMadness 360 for Global Retailers, enterprise iPad app that provides supermarkets with a way to direct store layouts and perform visual (photo-based) audits.',
           'Developed a social photo sharing platform that transcends language and location through video and photo conversations. Used Unique UX, localization, real-time translation, and web services.'
         ],
-        technologies: ['iOS', 'C', 'C++', 'Objective-C', 'Parse.com', 'OpenGL', 'REST', 'Web Services', 'Cheetah3D']
+        technologies: 'iOS, C, C++, Objective-C, Parse.com, OpenGL, REST, Web Services, Cheetah3D'
       },
       {
         title: 'Team Lead',
@@ -40,7 +47,7 @@ export async function getDeveloperData(id: string): Promise<Developer> {
           'Developed several tool prototypes and integrated various group efforts for project Panama.',
           'Developed the Right Media back-end display advertising server system.'
         ],
-        technologies: ['Perl', 'C++']
+        technologies: 'Perl, C++'
       }
     ],
     skills: [
